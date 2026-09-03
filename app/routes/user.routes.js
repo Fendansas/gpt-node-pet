@@ -1,0 +1,64 @@
+import express from 'express';
+import userController from "../controllers/user.controller.js";
+import authMiddleware from "../middleware/auth.middleware.js";
+import roleMiddleware from "../middleware/role.middleware.js";
+import {
+    createUserSchema,
+    loginSchema,
+    updateUserSchema
+} from "../validations/user.validation.js";
+import validate from "../middleware/validation.middleware.js";
+import {asyncHandler} from "../utils/asyncHandler.js";
+import validateObjectId from "../middleware/validateObjectId.middleware.js";
+
+const router = express.Router();
+
+router.get(
+    '/',
+    authMiddleware,
+    roleMiddleware('admin'),
+    asyncHandler(userController.getUsers)
+);
+
+router.post(
+    '/',
+    validate(createUserSchema),
+    asyncHandler(userController.createUser)
+);
+
+router.get('/me',
+    authMiddleware,
+    asyncHandler(userController.getMe)
+);
+
+router.patch('/me',
+    authMiddleware,
+    validate(updateUserSchema),
+    asyncHandler(userController.updateMe)
+);
+
+router.patch('/:id/deactivate',
+    authMiddleware,
+    roleMiddleware('admin'),
+    validateObjectId,
+    asyncHandler(userController.deactivateUser)
+)
+
+router.patch('/:id/activate',
+    authMiddleware,
+    roleMiddleware('admin'),
+    validateObjectId,
+    asyncHandler(userController.activateUser),
+)
+
+router.delete('/me',
+    authMiddleware,
+    asyncHandler(userController.deleteMe)
+);
+
+router.post('/login',
+    validate(loginSchema),
+    asyncHandler(userController.loginUser),
+)
+
+export default router;

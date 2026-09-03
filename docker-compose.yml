@@ -1,0 +1,13 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: mongo-db-gpt
+    ports:
+      - "27016:27017"
+    environment:
+      MONGO_INITDB_DATABASE: gpt-app
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

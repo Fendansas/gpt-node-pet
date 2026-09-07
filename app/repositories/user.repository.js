@@ -3,9 +3,7 @@ import {ConflictError} from "../errors/ConflictError.js";
 
 class UserRepository {
     async getUsers() {
-        const users = await User.find();
-
-        return users
+        return User.find();
     }
 
     async createUser(data) {
@@ -26,8 +24,7 @@ class UserRepository {
     }
 
     async getUserByEmail(email) {
-        const user = await User.findOne({email})
-        return user;
+        return User.findOne({email});
     }
 
     async getUserByEmailWithPassword(email) {
@@ -41,7 +38,13 @@ class UserRepository {
 
     async updateUser(id, data) {
         try {
-            const user = await User.findByIdAndUpdate(id, data, {new: true, runValidators: true})
+            const user = await User.findByIdAndUpdate(
+                id,
+                data,
+                {
+                    new: true,
+                    runValidators: true
+                })
             return user
         } catch (error) {
             if (error.code === 11000) {

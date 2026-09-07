@@ -20,24 +20,30 @@ app.use((err, req, res, next) => {
     if (!statusCode && err.name === 'ValidationError') {
         statusCode = 400;
     }
+    if (!statusCode && err.name === 'CastError') {
+        statusCode = 400;
+    }
+
     if (!statusCode){
         statusCode = 500
     }
-
-    const errors = Object.values(err.errors);
-    const normalizedErrors = error.map(error => {
-        return {
-            field: error.path,
-            message: error.message
-        };
-    });
-
-
-
     const response = {
         status: 'error',
         message: err.message
     };
+    if (err.errors && !Array.isArray(err.errors)) {
+        const mongooseErrors = Object.values(err.errors);
+
+        const normalizedErrors = mongooseErrors.map(error => {
+            return {
+                field: error.path,
+                message: error.message
+            };
+        });
+
+        response.errors = normalizedErrors;
+    }
+
 
     if (err.errors?.length) {
         response.errors = err.errors;

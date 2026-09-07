@@ -24,9 +24,12 @@ class UserService {
 
         const hash = await bcrypt.hash(data.password, 10);
 
-        data.password = hash;
+        const userData = {
+            ...data,
+            password: hash
+        }
 
-        const user = await userRepository.createUser(data);
+        const user = await userRepository.createUser(userData);
 
         return userResponse(user);
 
@@ -76,10 +79,6 @@ class UserService {
 
     }
     async updateUser(id, data){
-        const user = await userRepository.getUserById(id)
-        if (!user) {
-            throw new NotFoundError('User not found');
-        }
 
 
         const updateData = {};
@@ -88,7 +87,7 @@ class UserService {
         }
         if(data.email !== undefined){
 
-            let checkEmail = await userRepository.getUserByEmail(data.email);
+            const checkEmail = await userRepository.getUserByEmail(data.email);
             if (checkEmail && checkEmail._id.toString() !== id) {
                 throw new ConflictError('Email already exists');
             }
@@ -101,30 +100,31 @@ class UserService {
         }
 
         const updatedUser = await userRepository.updateUser(id, updateData)
+        if (!updatedUser) {
+            throw new NotFoundError('User not found');
+        }
 
         return userResponse(updatedUser);
 
     }
     async deactivateUser(id) {
-        const user = await userRepository.getUserById(id);
-
-        if (!user) {
-            throw new NotFoundError('User not found');
-        }
 
         const deactivatedUser = await userRepository.deactivateUser(id);
+
+        if (!deactivatedUser) {
+            throw new NotFoundError('User not found');
+        }
 
         return userResponse(deactivatedUser);
     }
 
     async activateUser(id) {
-        const user = await userRepository.getUserById(id);
-
-        if (!user) {
-            throw new NotFoundError('User not found');
-        }
 
         const activatedUser = await userRepository.activateUser(id);
+
+        if (!activatedUser) {
+            throw new NotFoundError('User not found');
+        }
 
         return userResponse(activatedUser);
     }

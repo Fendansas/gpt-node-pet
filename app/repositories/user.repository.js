@@ -28,8 +28,7 @@ class UserRepository {
     }
 
     async getUserByEmailWithPassword(email) {
-        const user = await User.findOne({email}).select('+password')
-        return user;
+        return User.findOne({ email }).select('+password');
     }
 
     async getUserById(id) {

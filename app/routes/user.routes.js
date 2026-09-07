@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.get(
     '/',
-    authMiddleware,
+    asyncHandler(authMiddleware),
     roleMiddleware('admin'),
     asyncHandler(userController.getUsers)
 );
@@ -27,32 +27,32 @@ router.post(
 );
 
 router.get('/me',
-    authMiddleware,
+    asyncHandler(authMiddleware),
     asyncHandler(userController.getMe)
 );
 
 router.patch('/me',
-    authMiddleware,
+    asyncHandler(authMiddleware),
     validate(updateUserSchema),
     asyncHandler(userController.updateMe)
 );
 
 router.patch('/:id/deactivate',
-    authMiddleware,
+    asyncHandler(authMiddleware),
     roleMiddleware('admin'),
     validateObjectId,
     asyncHandler(userController.deactivateUser)
 )
 
 router.patch('/:id/activate',
-    authMiddleware,
+    asyncHandler(authMiddleware),
     roleMiddleware('admin'),
     validateObjectId,
     asyncHandler(userController.activateUser),
 )
 
 router.delete('/me',
-    authMiddleware,
+    asyncHandler(authMiddleware),
     asyncHandler(userController.deleteMe)
 );
 

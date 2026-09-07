@@ -39,8 +39,13 @@ const authMiddleware = async (req, res, next) => {
     if (user.isActive === false) {
         return next(new ForbiddenError('Forbidden'));
     }
+    const data = {
+        userId: decoded.userId,
+        role: user.role,
+        isActive: user.isActive
+    }
 
-    req.user = decoded;
+    req.user = data;
 
     next();
 };

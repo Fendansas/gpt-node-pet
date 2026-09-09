@@ -10,6 +10,7 @@ import {
 import validate from "../middleware/validation.middleware.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import validateObjectId from "../middleware/validateObjectId.middleware.js";
+import rateLimit from "../middleware/rateLimit.middleware.js";
 
 const router = express.Router();
 
@@ -57,6 +58,7 @@ router.delete('/me',
 );
 
 router.post('/login',
+    rateLimit,
     validate(loginSchema),
     asyncHandler(userController.loginUser),
 )

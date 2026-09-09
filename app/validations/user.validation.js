@@ -16,4 +16,9 @@ export const loginSchema = z.object({
 export const updateUserSchema = z.object({
     name: z.string().min(3).optional(),
     email: z.email().optional()
-});
+}).refine(
+    data => data.name !== undefined || data.email !== undefined,
+    {
+        message: 'At least one field is required'
+    }
+)

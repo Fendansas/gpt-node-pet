@@ -5,7 +5,6 @@ import {ConflictError} from "../errors/ConflictError.js";
 import {Unauthorized} from "../errors/Unauthorized.js";
 import {NotFoundError} from "../errors/NotFoundError.js";
 import {ForbiddenError} from "../errors/ForbiddenError.js";
-import {ValidationError} from "../errors/ValidationError.js";
 import {userResponse} from "../utils/userResponse.js";
 
 class UserService {
@@ -93,10 +92,6 @@ class UserService {
             }
             updateData.email = data.email
 
-        }
-
-        if (Object.keys(updateData).length === 0) {
-            throw new ValidationError('No data');
         }
 
         const updatedUser = await userRepository.updateUser(id, updateData)

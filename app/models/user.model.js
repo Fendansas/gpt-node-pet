@@ -24,6 +24,10 @@ const userSchema = new Schema({
     isActive:{
         type:Boolean,
         default: true
+    },
+    tokenVersion:{
+        type: Number,
+        default: 0
     }
 })
 

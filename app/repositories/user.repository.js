@@ -67,6 +67,13 @@ class UserRepository {
             {new: true}
         )
     }
+
+    async incrementTokenVersion(id) {
+        return User.findByIdAndUpdate(id,
+            { $inc: { tokenVersion: 1 } },
+            { new: true }
+        )
+    }
 }
 
 export default new UserRepository();

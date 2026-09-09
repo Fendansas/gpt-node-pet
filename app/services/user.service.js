@@ -55,6 +55,7 @@ class UserService {
         const token = jwt.sign(
             {
                 userId: user._id,
+                tokenVersion: user.tokenVersion
             },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
@@ -123,6 +124,15 @@ class UserService {
 
         return userResponse(activatedUser);
     }
+
+
+    async logoutAll(id) {
+        const user = await userRepository.incrementTokenVersion(id);
+        if (!user) {
+            throw new NotFoundError('User not found');
+        }
+    }
+
 }
 
 export default new UserService();

@@ -53,6 +53,15 @@ class UserController {
 
     }
 
+    async logoutAll(req, res, next) {
+        await userService.logoutAll(req.user.userId);
+        return res.status(204).send();
+    }
+
+    async logout(req, res, next) {
+        return res.status(204).send();
+    }
+
 }
 
 export default new UserController;

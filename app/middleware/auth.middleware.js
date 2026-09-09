@@ -32,7 +32,12 @@ const authMiddleware = async (req, res, next) => {
 
     const user = await UserRepository.getUserById(decoded.userId);
 
+
+
     if (!user) {
+        return next(new Unauthorized('Unauthorized'));
+    }
+    if (user.tokenVersion !== decoded.tokenVersion){
         return next(new Unauthorized('Unauthorized'));
     }
 

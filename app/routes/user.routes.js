@@ -61,6 +61,17 @@ router.post('/login',
     rateLimit,
     validate(loginSchema),
     asyncHandler(userController.loginUser),
-)
+);
+
+router.post(
+    '/logout-all',
+    asyncHandler(authMiddleware),
+    asyncHandler(userController.logoutAll)
+);
+
+router.post(
+    '/logout',
+    asyncHandler(userController.logout)
+);
 
 export default router;

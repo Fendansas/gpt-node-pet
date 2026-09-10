@@ -13,6 +13,11 @@ class TaskRepository{
             return task;
 
     }
+
+    async getTasks(filter, sort){
+        const tasks = await Task.find(filter).sort(sort);
+        return tasks
+    }
 }
 
 

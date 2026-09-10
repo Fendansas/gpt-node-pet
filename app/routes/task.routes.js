@@ -18,4 +18,9 @@ router.post(
     asyncHandler(taskController.createTask)
 );
 
+router.get('/',
+    asyncHandler(authMiddleware),
+    asyncHandler(taskController.getTasks)
+    )
+
 export default router;

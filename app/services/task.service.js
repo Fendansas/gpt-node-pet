@@ -9,6 +9,11 @@ class TaskService{
 
         return task
     }
+
+    async getTasks(filter, sort){
+        const tasks = await taskRepository.getTasks(filter, sort)
+        return tasks
+    }
 }
 
 export default new TaskService();

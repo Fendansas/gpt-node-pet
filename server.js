@@ -1,5 +1,6 @@
 import express from 'express';
 import user from './app/routes/user.routes.js'
+import task from './app/routes/task.routes.js'
 import connectDB from "./app/config/database.js";
 import dotenv from 'dotenv';
 
@@ -12,6 +13,8 @@ await connectDB();
 app.use(express.json());
 
 app.use('/users',user);
+app.use('/tasks',task);
+
 
 app.use((err, req, res, next) => {
 

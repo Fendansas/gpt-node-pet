@@ -10,8 +10,8 @@ class TaskService{
         return task
     }
 
-    async getTasks(filter, sort){
-        const tasks = await taskRepository.getTasks(filter, sort)
+    async getTasks(filter, sort, limit, page){
+        const tasks = await taskRepository.getTasks(filter, sort,limit, page)
         return tasks
     }
 }

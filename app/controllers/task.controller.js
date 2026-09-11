@@ -15,14 +15,27 @@ class TaskController {
 
     async getTasks(req, res, next){
 
-        let {status, priority, sort } = req.query;
+        let {
+            status,
+            priority,
+            sort,
+            page,
+            limit
+        } = req.query;
+
+        if (!page){
+            page = 1
+        }
+
+        if (!limit){
+            limit = 5
+        }
         const allowedSortFields = [
             'createdAt',
             'priority'
         ];
         const sortField = sort?.replace('-', '');
 
-        const checkSort = allowedSortFields.includes(sort)
         if (!allowedSortFields.includes(sortField)) {
             sort = '';
         }
@@ -36,7 +49,8 @@ class TaskController {
             filter.priority = priority
         }
 
-        const tasks = await taskService.getTasks(filter, sort);
+
+        const tasks = await taskService.getTasks(filter, sort, Number(limit), Number(page));
         return res.status(200).json(tasks)
     }
 }

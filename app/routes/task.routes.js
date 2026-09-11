@@ -5,6 +5,7 @@ import taskController from "../controllers/task.controller.js";
 import {asyncHandler} from "../utils/asyncHandler.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 import validate from "../middleware/validation.middleware.js";
+import validateQuery from "../middleware/validateQuery.middleware.js";
 
 
 
@@ -20,6 +21,7 @@ router.post(
 
 router.get('/',
     asyncHandler(authMiddleware),
+    validateQuery,
     asyncHandler(taskController.getTasks)
     )
 

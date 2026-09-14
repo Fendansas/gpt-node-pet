@@ -1,11 +1,20 @@
 import * as z from "zod";
+import mongoose from "mongoose";
 
 
 
 export const createTaskSchema = z.object({
     title: z.string().min(3).trim(),
     description: z.string().trim().optional(),
-    priority: z.enum(['low', 'medium', 'high', 'critical'])
+    priority: z.enum(['low', 'medium', 'high', 'critical']),
+    assignedTo: z.string()
+        .refine(
+            value => mongoose.Types.ObjectId.isValid(value),
+            {
+                message: 'Invalid user id'
+            }
+        )
+        .optional()
 });
 
 export const updateTaskSchema = z.object({

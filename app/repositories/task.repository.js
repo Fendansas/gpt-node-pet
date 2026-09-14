@@ -8,7 +8,8 @@ class TaskRepository{
                 title: data.title,
                 description: data.description,
                 priority: data.priority,
-                createdBy: data.createdBy
+                createdBy: data.createdBy,
+                assignedTo: data.assignedTo
             })
             return task;
 

@@ -19,21 +19,10 @@ class TaskController {
             status,
             priority,
             sort,
-        } = req.query;
-        const{
             page = 1,
             limit = 5
         } = req.validatedQuery;
 
-        const allowedSortFields = [
-            'createdAt',
-            'priority'
-        ];
-        const sortField = sort?.replace('-', '');
-        let validSort = sort;
-        if (!allowedSortFields.includes(sortField)) {
-            validSort = '';
-        }
 
         const filter = {};
 
@@ -45,7 +34,7 @@ class TaskController {
         }
 
 
-        const tasks = await taskService.getTasks(filter, validSort, limit, page);
+        const tasks = await taskService.getTasks(req.user, filter, sort, limit, page);
         return res.status(200).json(tasks)
     }
 }

@@ -10,8 +10,13 @@ class TaskService{
         return task
     }
 
-    async getTasks(filter, sort, limit, page){
-        const tasks = await taskRepository.getTasks(filter, sort,limit, page)
+    async getTasks(user, filter, sort, limit, page){
+
+        if (user.role !== 'admin'){
+            filter.createdBy = user.userId
+        }
+        const tasks = await taskRepository.getTasks(filter, sort, limit, page);
+
         return tasks
     }
 }

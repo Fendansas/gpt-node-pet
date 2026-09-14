@@ -2,20 +2,25 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Shield } from 'lucide-react';
 import api from '../api/api';
+import { useAuth } from '../hooks/useAuth';
 import { UserTable } from '../components/UserTable';
 import toast from 'react-hot-toast';
 
 export function AdminPage() {
+  const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchUsers = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const { data } = await api.get('/users');
       setUsers(data);
     } catch (err) {
-      toast.error('Ошибка загрузки пользователей');
+      if (err.response?.status !== 401) {
+        toast.error('Ошибка загрузки пользователей');
+      }
     } finally {
       setLoading(false);
     }
@@ -23,7 +28,7 @@ export function AdminPage() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [user]);
 
   const handleToggleActive = async (userId, currentStatus) => {
     try {

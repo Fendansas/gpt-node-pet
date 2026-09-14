@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Inbox } from 'lucide-react';
 import api from '../api/api';
+import { useAuth } from '../hooks/useAuth';
 import { TaskCard } from '../components/TaskCard';
 import { TaskFilters } from '../components/TaskFilters';
 import { TaskForm } from '../components/TaskForm';
@@ -9,6 +10,7 @@ import { Pagination } from '../components/Pagination';
 import toast from 'react-hot-toast';
 
 export function TasksPage() {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [filters, setFilters] = useState({ status: '', priority: '', sort: '' });
@@ -17,6 +19,7 @@ export function TasksPage() {
   const [formOpen, setFormOpen] = useState(false);
 
   const fetchTasks = useCallback(async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const params = { page, limit: 8 };
@@ -28,11 +31,13 @@ export function TasksPage() {
       setTasks(data.tasks);
       setPagination(data.pagination);
     } catch (err) {
-      toast.error('Ошибка загрузки задач');
+      if (err.response?.status !== 401) {
+        toast.error('Ошибка загрузки задач');
+      }
     } finally {
       setLoading(false);
     }
-  }, [page, filters]);
+  }, [page, filters, user]);
 
   useEffect(() => {
     fetchTasks();

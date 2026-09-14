@@ -7,8 +7,22 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/users': 'http://localhost:3333',
-      '/tasks': 'http://localhost:3333',
+      '/users': {
+        target: 'http://localhost:3333',
+        bypass(req) {
+          if (req.headers.accept?.includes('text/html')) {
+            return '/index.html';
+          }
+        },
+      },
+      '/tasks': {
+        target: 'http://localhost:3333',
+        bypass(req) {
+          if (req.headers.accept?.includes('text/html')) {
+            return '/index.html';
+          }
+        },
+      },
     },
   },
 })

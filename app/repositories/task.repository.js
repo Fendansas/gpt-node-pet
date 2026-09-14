@@ -17,7 +17,7 @@ class TaskRepository{
 
     async getTasks(filter, sort, limit, page) {
 
-        let countDocuments = await Task.countDocuments(filter)
+        const countDocuments = await Task.countDocuments(filter)
         const allPages = Math.ceil(countDocuments / limit)
         const skip = (page - 1) * limit;
 
@@ -43,6 +43,24 @@ class TaskRepository{
                 totalPages: allPages
             }
         }
+    }
+
+    async updateTask(id, data) {
+        const task = await Task.findByIdAndUpdate(
+            id,
+            data,
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        return task;
+
+    }
+
+    async getTaskById(id){
+        return Task.findById(id);
     }
 }
 

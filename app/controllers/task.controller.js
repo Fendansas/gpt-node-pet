@@ -37,6 +37,17 @@ class TaskController {
         const tasks = await taskService.getTasks(req.user, filter, sort, limit, page);
         return res.status(200).json(tasks)
     }
+
+
+    async updateTask(req, res, next){
+        const task = await taskService.updateTask(
+            req.params.id,
+            req.body,
+            req.user
+        )
+
+        return res.status(200).json(task);
+    }
 }
 
 export default new TaskController();

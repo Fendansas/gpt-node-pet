@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle } from 'lucide-react';
+import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil } from 'lucide-react';
 import { getStatusConfig, getPriorityConfig } from '../utils/constants';
 
 const priorityIcons = {
@@ -9,7 +9,7 @@ const priorityIcons = {
   critical: AlertTriangle,
 };
 
-export function TaskCard({ task, index = 0 }) {
+export function TaskCard({ task, index = 0, onEdit }) {
   const status = getStatusConfig(task.status);
   const priority = getPriorityConfig(task.priority);
   const PriorityIcon = priorityIcons[task.priority] || Minus;
@@ -25,9 +25,19 @@ export function TaskCard({ task, index = 0 }) {
         <h3 className="text-slate-100 font-semibold text-base leading-tight group-hover:text-white transition-colors line-clamp-2">
           {task.title}
         </h3>
-        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border ${priority.color} shrink-0`}>
-          <PriorityIcon size={12} />
-          {priority.label}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border ${priority.color}`}>
+            <PriorityIcon size={12} />
+            {priority.label}
+          </div>
+          {onEdit && (
+            <button
+              onClick={() => onEdit(task)}
+              className="w-7 h-7 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all opacity-0 group-hover:opacity-100"
+            >
+              <Pencil size={13} />
+            </button>
+          )}
         </div>
       </div>
 

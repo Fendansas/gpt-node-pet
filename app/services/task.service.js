@@ -1,6 +1,7 @@
 import taskRepository from "../repositories/task.repository.js";
 import {NotFoundError} from "../errors/NotFoundError.js";
 import userRepository from "../repositories/user.repository.js";
+import {ForbiddenError} from "../errors/ForbiddenError.js";
 
 
 class TaskService{
@@ -48,11 +49,11 @@ class TaskService{
         }
 
         let updateData;
-        if (user.role === 'admin'){
-            updateData = data;
-        }
 
-        if (isCreator ){
+
+        if (user.role === 'admin') {
+            updateData = data;
+        } else if (isCreator) {
             updateData = {};
 
             if(data.title !== undefined){
@@ -68,16 +69,13 @@ class TaskService{
 
                 updateData.assignedTo = data.assignedTo
             }
-
-        }
-
-        if (isAssignee && !isCreator){
+        } else if (isAssignee) {
             updateData = {};
             if(data.status !== undefined){
                 updateData.status = data.status
             }
-
         }
+
         if (updateData.assignedTo !== undefined) {
             const newAssignedTo = await userRepository.getUserById(updateData.assignedTo);
 
@@ -86,8 +84,13 @@ class TaskService{
             }
         }
 
+        if (Object.keys(updateData).length === 0) {
+            throw new ForbiddenError('Forbidden');
+        }
 
 
+        const updatedTask = await taskRepository.updateTask(id, updateData);
+        return updatedTask
 
 
     }

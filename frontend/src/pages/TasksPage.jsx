@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { TaskCard } from '../components/TaskCard';
 import { TaskFilters } from '../components/TaskFilters';
 import { TaskForm } from '../components/TaskForm';
+import { EditTaskForm } from '../components/EditTaskForm';
 import { Pagination } from '../components/Pagination';
 import toast from 'react-hot-toast';
 
@@ -17,6 +18,7 @@ export function TasksPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
+  const [editTask, setEditTask] = useState(null);
 
   const fetchTasks = useCallback(async () => {
     if (!user) return;
@@ -51,6 +53,13 @@ export function TasksPage() {
   const handleCreateTask = async (taskData) => {
     const { data } = await api.post('/tasks', taskData);
     toast.success('Задача создана!');
+    fetchTasks();
+    return data;
+  };
+
+  const handleUpdateTask = async (taskId, updateData) => {
+    const { data } = await api.patch(`/tasks/${taskId}`, updateData);
+    toast.success('Задача обновлена!');
     fetchTasks();
     return data;
   };
@@ -103,7 +112,12 @@ export function TasksPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {tasks.map((task, index) => (
-            <TaskCard key={task._id} task={task} index={index} />
+            <TaskCard
+              key={task._id}
+              task={task}
+              index={index}
+              onEdit={setEditTask}
+            />
           ))}
         </div>
       )}
@@ -115,6 +129,15 @@ export function TasksPage() {
         onClose={() => setFormOpen(false)}
         onSubmit={handleCreateTask}
       />
+
+      {editTask && (
+        <EditTaskForm
+          isOpen={!!editTask}
+          onClose={() => setEditTask(null)}
+          task={editTask}
+          onSubmit={handleUpdateTask}
+        />
+      )}
     </div>
   );
 }

@@ -1,11 +1,12 @@
 import express from 'express';
-import {createTaskSchema} from "../validations/task.validation.js";
+import {createTaskSchema, updateTaskSchema} from "../validations/task.validation.js";
 import taskController from "../controllers/task.controller.js";
 
 import {asyncHandler} from "../utils/asyncHandler.js";
 import authMiddleware from "../middleware/auth.middleware.js";
 import validate from "../middleware/validation.middleware.js";
 import validateQuery from "../middleware/validateQuery.middleware.js";
+import validateObjectId from "../middleware/validateObjectId.middleware.js";
 
 
 
@@ -23,6 +24,13 @@ router.get('/',
     asyncHandler(authMiddleware),
     validateQuery,
     asyncHandler(taskController.getTasks)
-    )
+    );
+
+router.patch('/:id',
+    asyncHandler(authMiddleware),
+    validateObjectId,
+    validate(updateTaskSchema),
+    asyncHandler(taskController.updateTask)
+);
 
 export default router;

@@ -19,6 +19,7 @@ export function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
   const [editTask, setEditTask] = useState(null);
+  const [users, setUsers] = useState([]);
 
   const fetchTasks = useCallback(async () => {
     if (!user) return;
@@ -44,6 +45,12 @@ export function TasksPage() {
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  useEffect(() => {
+    if (user) {
+      api.get('/users/assignable').then(({ data }) => setUsers(data)).catch(() => {});
+    }
+  }, [user]);
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
@@ -117,6 +124,7 @@ export function TasksPage() {
               task={task}
               index={index}
               onEdit={setEditTask}
+              users={users}
             />
           ))}
         </div>

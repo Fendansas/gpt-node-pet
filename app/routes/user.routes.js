@@ -14,6 +14,14 @@ import rateLimit from "../middleware/rateLimit.middleware.js";
 
 const router = express.Router();
 
+
+
+router.get(
+    '/assignable',
+    asyncHandler(authMiddleware),
+    asyncHandler(userController.getUsersAssignable)
+)
+
 router.get(
     '/',
     asyncHandler(authMiddleware),

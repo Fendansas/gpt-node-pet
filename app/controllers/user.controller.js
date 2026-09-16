@@ -62,6 +62,11 @@ class UserController {
         return res.status(204).send();
     }
 
+    async getUsersAssignable (req,res, next){
+        const users = await userService.getUsersAssignable();
+        return res.status(200).json(users)
+    }
+
 }
 
 export default new UserController;

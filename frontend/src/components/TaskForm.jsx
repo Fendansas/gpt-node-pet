@@ -1,22 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, FileText, AlertTriangle } from 'lucide-react';
+import { X, Send, FileText, AlertTriangle, User } from 'lucide-react';
 import { TASK_PRIORITIES } from '../utils/constants';
+import api from '../api/api';
 
 export function TaskForm({ isOpen, onClose, onSubmit }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
+  const [assignedTo, setAssignedTo] = useState('');
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      api.get('/users/assignable').then(({ data }) => setUsers(data)).catch(() => {});
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await onSubmit({ title, description, priority });
+      const taskData = { title, description, priority };
+      if (assignedTo) taskData.assignedTo = assignedTo;
+      await onSubmit(taskData);
       setTitle('');
       setDescription('');
       setPriority('medium');
+      setAssignedTo('');
       onClose();
     } catch {
     } finally {
@@ -107,6 +119,25 @@ export function TaskForm({ isOpen, onClose, onSubmit }) {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <User size={14} />
+                    Исполнитель
+                  </span>
+                </label>
+                <select
+                  value={assignedTo}
+                  onChange={(e) => setAssignedTo(e.target.value)}
+                  className="w-full bg-slate-800/50 border border-slate-600/50 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all appearance-none cursor-pointer"
+                >
+                  <option value="">Без исполнителя</option>
+                  {users.map((u) => (
+                    <option key={u._id} value={u._id}>{u.name}</option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex gap-3 pt-2">

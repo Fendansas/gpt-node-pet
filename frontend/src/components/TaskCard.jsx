@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil } from 'lucide-react';
+import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil, User } from 'lucide-react';
 import { getStatusConfig, getPriorityConfig } from '../utils/constants';
 
 const priorityIcons = {
@@ -9,10 +9,12 @@ const priorityIcons = {
   critical: AlertTriangle,
 };
 
-export function TaskCard({ task, index = 0, onEdit }) {
+export function TaskCard({ task, index = 0, onEdit, users = [] }) {
   const status = getStatusConfig(task.status);
   const priority = getPriorityConfig(task.priority);
   const PriorityIcon = priorityIcons[task.priority] || Minus;
+
+  const assignee = users.find((u) => u._id === task.assignedTo);
 
   return (
     <motion.div
@@ -42,12 +44,12 @@ export function TaskCard({ task, index = 0, onEdit }) {
       </div>
 
       {task.description && (
-        <p className="text-slate-400 text-sm mb-4 line-clamp-2 leading-relaxed">
+        <p className="text-slate-400 text-sm mb-3 line-clamp-2 leading-relaxed">
           {task.description}
         </p>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${status.color}`}>
           {status.label}
         </span>
@@ -58,6 +60,15 @@ export function TaskCard({ task, index = 0, onEdit }) {
             month: 'short',
           })}
         </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 text-xs text-slate-500 pt-2 border-t border-slate-700/30">
+        <User size={12} />
+        {assignee ? (
+          <span className="text-slate-300">{assignee.name}</span>
+        ) : (
+          <span className="italic">Без исполнителя</span>
+        )}
       </div>
     </motion.div>
   );

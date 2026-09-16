@@ -74,6 +74,9 @@ class UserRepository {
             { new: true }
         )
     }
+    async getUsersAssignable (){
+        return User.find().select('_id name');
+    }
 }
 
 export default new UserRepository();

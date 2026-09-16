@@ -133,6 +133,11 @@ class UserService {
         }
     }
 
+    async getUsersAssignable(){
+
+        return userRepository.getUsersAssignable();
+    }
+
 }
 
 export default new UserService();

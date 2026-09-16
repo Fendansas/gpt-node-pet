@@ -27,20 +27,20 @@ router.get('/',
 
 router.get('/:id',
     asyncHandler(authMiddleware),
-    validateObjectId,
+    validateObjectId('task'),
     asyncHandler(taskController.getTaskById)
 )
 
 router.patch('/:id',
     asyncHandler(authMiddleware),
-    validateObjectId,
+    validateObjectId('task'),
     validate(updateTaskSchema),
     asyncHandler(taskController.updateTask)
 );
 
 router.delete('/:id',
     asyncHandler(authMiddleware),
-    validateObjectId,
+    validateObjectId('task'),
     asyncHandler(taskController.deleteTask));
 
 export default router;

@@ -49,14 +49,14 @@ router.patch('/me',
 router.patch('/:id/deactivate',
     asyncHandler(authMiddleware),
     roleMiddleware('admin'),
-    validateObjectId,
+    validateObjectId('user'),
     asyncHandler(userController.deactivateUser)
 )
 
 router.patch('/:id/activate',
     asyncHandler(authMiddleware),
     roleMiddleware('admin'),
-    validateObjectId,
+    validateObjectId('user'),
     asyncHandler(userController.activateUser),
 )
 

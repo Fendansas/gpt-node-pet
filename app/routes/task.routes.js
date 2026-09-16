@@ -26,6 +26,12 @@ router.get('/',
     asyncHandler(taskController.getTasks)
     );
 
+router.get('/:id',
+    asyncHandler(authMiddleware),
+    validateObjectId,
+    asyncHandler(taskController.getTaskById)
+)
+
 router.patch('/:id',
     asyncHandler(authMiddleware),
     validateObjectId,

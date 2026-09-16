@@ -48,6 +48,14 @@ class TaskController {
 
         return res.status(200).json(task);
     }
+
+    async getTaskById(req, res, next){
+        const task = await taskService.getTaskById(
+            req.params.id,
+            req.user
+        )
+        return res.status(200).json(task)
+    }
 }
 
 export default new TaskController();

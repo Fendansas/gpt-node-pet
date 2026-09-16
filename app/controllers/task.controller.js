@@ -56,6 +56,16 @@ class TaskController {
         )
         return res.status(200).json(task)
     }
+
+    async deleteTask(req, res, next) {
+
+        await taskService.deleteTask(
+            req.params.id,
+            req.user
+        )
+
+        return res.status(204).send()
+    }
 }
 
 export default new TaskController();

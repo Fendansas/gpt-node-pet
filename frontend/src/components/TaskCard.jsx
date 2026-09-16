@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil, User } from 'lucide-react';
+import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil, Trash2, User } from 'lucide-react';
 import { getStatusConfig, getPriorityConfig } from '../utils/constants';
+import { useAuth } from '../hooks/useAuth';
 
 const priorityIcons = {
   low: ArrowDown,
@@ -10,13 +11,16 @@ const priorityIcons = {
   critical: AlertTriangle,
 };
 
-export function TaskCard({ task, index = 0, onEdit, users = [] }) {
+export function TaskCard({ task, index = 0, onEdit, onDelete, users = [] }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const status = getStatusConfig(task.status);
   const priority = getPriorityConfig(task.priority);
   const PriorityIcon = priorityIcons[task.priority] || Minus;
 
   const assignee = users.find((u) => u._id === task.assignedTo);
+  const isCreator = task.createdBy?.toString() === user?.id?.toString();
+  const canDelete = isCreator || user?.role === 'admin';
 
   return (
     <motion.div
@@ -44,6 +48,17 @@ export function TaskCard({ task, index = 0, onEdit, users = [] }) {
               className="w-7 h-7 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all opacity-0 group-hover:opacity-100"
             >
               <Pencil size={13} />
+            </button>
+          )}
+          {canDelete && onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(task._id);
+              }}
+              className="w-7 h-7 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
+            >
+              <Trash2 size={13} />
             </button>
           )}
         </div>

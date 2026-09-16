@@ -9,7 +9,6 @@ import validateQuery from "../middleware/validateQuery.middleware.js";
 import validateObjectId from "../middleware/validateObjectId.middleware.js";
 
 
-
 const router = express.Router();
 
 
@@ -24,7 +23,7 @@ router.get('/',
     asyncHandler(authMiddleware),
     validateQuery,
     asyncHandler(taskController.getTasks)
-    );
+);
 
 router.get('/:id',
     asyncHandler(authMiddleware),
@@ -38,5 +37,10 @@ router.patch('/:id',
     validate(updateTaskSchema),
     asyncHandler(taskController.updateTask)
 );
+
+router.delete('/:id',
+    asyncHandler(authMiddleware),
+    validateObjectId,
+    asyncHandler(taskController.deleteTask));
 
 export default router;

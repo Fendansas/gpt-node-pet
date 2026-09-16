@@ -62,6 +62,11 @@ class TaskRepository{
     async getTaskById(id){
         return Task.findById(id);
     }
+
+
+    async deleteTask(id){
+        return Task.findByIdAndDelete(id);
+    }
 }
 
 

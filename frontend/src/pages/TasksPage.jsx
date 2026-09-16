@@ -7,6 +7,7 @@ import { TaskCard } from '../components/TaskCard';
 import { TaskFilters } from '../components/TaskFilters';
 import { TaskForm } from '../components/TaskForm';
 import { EditTaskForm } from '../components/EditTaskForm';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Pagination } from '../components/Pagination';
 import toast from 'react-hot-toast';
 
@@ -20,6 +21,8 @@ export function TasksPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [editTask, setEditTask] = useState(null);
   const [users, setUsers] = useState([]);
+  const [confirmTask, setConfirmTask] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchTasks = useCallback(async () => {
     if (!user) return;
@@ -69,6 +72,26 @@ export function TasksPage() {
     toast.success('Задача обновлена!');
     fetchTasks();
     return data;
+  };
+
+  const handleDeleteTask = (taskId) => {
+    const task = tasks.find((t) => t._id === taskId);
+    if (task) setConfirmTask(task);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmTask) return;
+    setDeleting(true);
+    try {
+      await api.delete(`/tasks/${confirmTask._id}`);
+      toast.success('Задача удалена');
+      setConfirmTask(null);
+      fetchTasks();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Ошибка удаления');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -124,6 +147,7 @@ export function TasksPage() {
               task={task}
               index={index}
               onEdit={setEditTask}
+              onDelete={handleDeleteTask}
               users={users}
             />
           ))}
@@ -146,6 +170,16 @@ export function TasksPage() {
           onSubmit={handleUpdateTask}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={!!confirmTask}
+        onClose={() => setConfirmTask(null)}
+        onConfirm={handleConfirmDelete}
+        title="Удалить задачу?"
+        message={`Задача «${confirmTask?.title}» будет удалена навсегда. Это действие нельзя отменить.`}
+        confirmText="Удалить"
+        loading={deleting}
+      />
     </div>
   );
 }

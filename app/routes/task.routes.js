@@ -38,9 +38,19 @@ router.patch('/:id',
     asyncHandler(taskController.updateTask)
 );
 
-router.delete('/:id',
+router.post('/:id/cancel',
     asyncHandler(authMiddleware),
     validateObjectId('task'),
+    asyncHandler(taskController.cancelTask)
+
+    );
+
+router.delete('/:id',
+    asyncHandler(authMiddleware),
+    roleMiddleware('admin'),
+    validateObjectId('task'),
     asyncHandler(taskController.deleteTask));
+
+
 
 export default router;

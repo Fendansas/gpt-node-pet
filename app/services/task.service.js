@@ -130,7 +130,7 @@ class TaskService{
         }
 
         const isCreator = task.createdBy.toString() === user.userId.toString()
-        const isAssignee = task.assignedTo && task.assignedTo.toString() === user.userId.toString();
+        const isAssignee = !!task.assignedTo && task.assignedTo.toString() === user.userId.toString();
 
         if (isCreator === false && isAssignee === false && user.role !== 'admin'){
             throw new ForbiddenError('Forbidden');
@@ -149,14 +149,38 @@ class TaskService{
             throw new NotFoundError('Task not found');
         }
 
-        const isCreator = task.createdBy.toString() === user.userId.toString()
 
-        if (isCreator === false && user.role !== 'admin'){
+        if (user.role !== 'admin'){
             throw new ForbiddenError('Forbidden');
         }
 
         return  taskRepository.deleteTask(id)
 
+    }
+
+
+    async cancelTask(id, user){
+        const task = await taskRepository.getTaskById(id);
+
+        if(!task){
+            throw new NotFoundError('Task not found');
+        }
+
+        const isCreator = task.createdBy.toString() === user.userId.toString();
+
+        if (!isCreator && user.role !== 'admin'){
+            throw new ForbiddenError('Forbidden');
+        }
+
+        if(task.status === 'cancelled'){
+            throw new ForbiddenError('Task is already cancelled')
+        }
+
+        if(task.status === 'done' && user.role !== 'admin'){
+            throw new ForbiddenError('Cannot cancel completed task')
+        }
+
+        return taskRepository.updateTask(id, {status: 'cancelled'})
     }
 }
 

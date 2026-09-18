@@ -66,6 +66,13 @@ class TaskController {
 
         return res.status(204).send()
     }
+
+    async cancelTask(req, res, next){
+
+        const task  = await taskService.cancelTask(req.params.id, req.user);
+
+        return res.status(200).json(task)
+    }
 }
 
 export default new TaskController();

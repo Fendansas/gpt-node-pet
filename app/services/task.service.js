@@ -2,6 +2,8 @@ import taskRepository from "../repositories/task.repository.js";
 import {NotFoundError} from "../errors/NotFoundError.js";
 import userRepository from "../repositories/user.repository.js";
 import {ForbiddenError} from "../errors/ForbiddenError.js";
+import { canTransition } from "../utils/taskStatusTransitions.js";
+import { canChangeStatus } from "../utils/taskStatusPermissions.js";
 
 
 class TaskService{
@@ -13,6 +15,9 @@ class TaskService{
             const assignedTo = await userRepository.getUserById(data.assignedTo);
             if (!assignedTo) {
                 throw new NotFoundError('Assigned user not found');
+            }
+            if (!assignedTo.isActive) {
+                throw new ForbiddenError('Cannot assign task to inactive user');
             }
         }
 
@@ -41,20 +46,37 @@ class TaskService{
             throw new NotFoundError('Task not found');
         }
 
+        if(data.status !== undefined && user.role !== 'admin'){
+
+            const currentStatus = task.status;
+            const newStatus = data.status;
+
+            if(!canTransition(currentStatus, newStatus)){
+                throw new ForbiddenError('Invalid status transition')
+            }
+
+            if(!canChangeStatus(task, user, currentStatus, newStatus)){
+                throw new ForbiddenError('You cannot change task status')
+            }
+        }
+
+
+
         const isCreator = task.createdBy.toString() === user.userId.toString()
-        const isAssignee = task.assignedTo && task.assignedTo.toString() === user.userId.toString();
+        const isAssignee =
+            !!task.assignedTo &&
+            task.assignedTo.toString() === user.userId.toString();
 
         if (isCreator === false && isAssignee === false && user.role !== 'admin'){
             throw new ForbiddenError('Forbidden');
         }
 
-        let updateData;
+        let updateData = {};
 
 
         if (user.role === 'admin') {
             updateData = data;
         } else if (isCreator) {
-            updateData = {};
 
             if(data.title !== undefined){
                 updateData.title = data.title
@@ -69,8 +91,10 @@ class TaskService{
 
                 updateData.assignedTo = data.assignedTo
             }
+            if (data.status !== undefined) {
+                updateData.status = data.status;
+            }
         } else if (isAssignee) {
-            updateData = {};
             if(data.status !== undefined){
                 updateData.status = data.status
             }
@@ -81,6 +105,10 @@ class TaskService{
 
             if (!newAssignedTo) {
                 throw new NotFoundError('Assigned user not found');
+            }
+
+            if(!newAssignedTo.isActive){
+                throw new ForbiddenError('Cannot assign task to inactive user');
             }
         }
 

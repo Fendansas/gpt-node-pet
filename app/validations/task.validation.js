@@ -21,7 +21,7 @@ export const updateTaskSchema = z.object({
     title: z.string().trim().min(3).optional(),
     description: z.string().trim().optional(),
     priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-    status: z.enum(['draft', 'backlog', 'todo', 'in_progress', 'review', 'rework', 'done', 'cancelled']).optional(),
+    status: z.enum(['draft', 'backlog', 'todo', 'in_progress', 'review', 'rework', 'done']).optional(),
     assignedTo: z.string()
         .refine(
             value => mongoose.Types.ObjectId.isValid(value),

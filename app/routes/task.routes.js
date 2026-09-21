@@ -7,6 +7,7 @@ import authMiddleware from "../middleware/auth.middleware.js";
 import validate from "../middleware/validation.middleware.js";
 import validateQuery from "../middleware/validateQuery.middleware.js";
 import validateObjectId from "../middleware/validateObjectId.middleware.js";
+import roleMiddleware from "../middleware/role.middleware.js";
 
 
 const router = express.Router();

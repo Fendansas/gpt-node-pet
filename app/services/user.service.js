@@ -38,7 +38,7 @@ class UserService {
         const user = await userRepository.getUserByEmailWithPassword(data.email);
 
         if (!user){
-            throw new NotFoundError('Not found user');
+            throw new NotFoundError('Invalid credentials');
         }
 
         if(user.isActive === false){
@@ -49,7 +49,7 @@ class UserService {
 
         const comparePass = await bcrypt.compare(password, user.password);
         if (comparePass === false){
-            throw new Unauthorized('Unauthorized');
+            throw new Unauthorized('Invalid credentials');
         }
 
         const token = jwt.sign(
@@ -88,7 +88,7 @@ class UserService {
         if(data.email !== undefined){
 
             const checkEmail = await userRepository.getUserByEmail(data.email);
-            if (checkEmail && checkEmail._id.toString() !== id) {
+            if (checkEmail && String(checkEmail._id) !== String(id)) {
                 throw new ConflictError('Email already exists');
             }
             updateData.email = data.email
@@ -110,6 +110,8 @@ class UserService {
         if (!deactivatedUser) {
             throw new NotFoundError('User not found');
         }
+
+        await userRepository.incrementTokenVersion(id);
 
         return userResponse(deactivatedUser);
     }

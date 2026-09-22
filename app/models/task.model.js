@@ -34,6 +34,17 @@ const taskSchema = new Schema({
     }
 },{
     timestamps: true
+});
+taskSchema.index({
+    createdBy: 1,
+    status: 1,
+    createdAt: -1
+});
+
+taskSchema.index({
+    assignedTo: 1,
+    status: 1,
+    createdAt: -1
 })
 
 const Task = mongoose.model('Task', taskSchema)

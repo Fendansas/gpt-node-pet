@@ -4,6 +4,7 @@ import userRepository from "../repositories/user.repository.js";
 import {ForbiddenError} from "../errors/ForbiddenError.js";
 import { canTransition } from "../utils/taskStatusTransitions.js";
 import { canChangeStatus } from "../utils/taskStatusPermissions.js";
+import {ConflictError} from "../errors/ConflictError.js";
 
 
 class TaskService{
@@ -116,7 +117,24 @@ class TaskService{
             throw new ForbiddenError('Forbidden');
         }
 
-        const updatedTask = await taskRepository.updateTask(id, updateData);
+        let updatedTask = await taskRepository.updateTask(id, updateData);
+
+        if (data.status !== undefined && user.role !== 'admin') {
+            updatedTask = await taskRepository.updateTask(
+                id,
+                updateData,
+                task.status
+            );
+        } else {
+            updatedTask = await taskRepository.updateTask(
+                id,
+                updateData
+            );
+        }
+        
+        if (!updatedTask) {
+            throw new ConflictError('Task was modified by another request');
+        }
         return updatedTask
 
     }

@@ -45,9 +45,16 @@ class TaskRepository{
         }
     }
 
-    async updateTask(id, data) {
+    async updateTask(id, data, expectedStatus = null) {
+
+        const filter = {_id: id};
+
+        if (expectedStatus !== null) {
+            filter.status = expectedStatus;
+        }
+
         const task = await Task.findByIdAndUpdate(
-            id,
+            filter,
             data,
             {
                 new: true,

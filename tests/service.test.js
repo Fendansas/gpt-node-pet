@@ -7,6 +7,7 @@ import {ConflictError} from "../app/errors/ConflictError.js";
 const mockGetUserById = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUserByEmail = jest.fn()
+const mockGetUserByEmailWithPassword = jest.fn();
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -15,7 +16,8 @@ jest.unstable_mockModule('../app/repositories/user.repository.js',()=>({
     default:{
         getUserById: mockGetUserById,
         createUser: mockCreateUser,
-        getUserByEmail:mockGetUserByEmail
+        getUserByEmail:mockGetUserByEmail,
+        getUserByEmailWithPassword: mockGetUserByEmailWithPassword
 
     }
 
@@ -119,6 +121,21 @@ test('Емеил уже используется', async () =>{
     ).rejects.toThrow(ConflictError);
 
     expect(mockCreateUser).not.toHaveBeenCalled()
+
+})
+
+test('Тестируем логин, пользователь не найден', async () =>{
+
+    mockGetUserByEmailWithPassword.mockResolvedValueOnce(null);
+
+    await expect(
+
+        userService.loginUser({
+            email: 'sergey@test.com',
+            password: '1234567'
+        })
+
+    ).rejects.toThrow(NotFoundError);
 
 })
 

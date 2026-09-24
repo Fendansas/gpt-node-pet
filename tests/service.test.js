@@ -2,12 +2,19 @@
 import {NotFoundError} from "../app/errors/NotFoundError.js";
 import {jest} from '@jest/globals'
 import {ConflictError} from "../app/errors/ConflictError.js";
+import {Unauthorized} from "../app/errors/Unauthorized.js";
+import  {ForbiddenError} from "../app/errors/ForbiddenError.js"
 
 
 const mockGetUserById = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUserByEmail = jest.fn()
 const mockGetUserByEmailWithPassword = jest.fn();
+
+const mockCompare = jest.fn();
+const mockHash = jest.fn().mockResolvedValue('fake-hash')
+
+process.env.JWT_SECRET = 'test-secret'
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -17,10 +24,17 @@ jest.unstable_mockModule('../app/repositories/user.repository.js',()=>({
         getUserById: mockGetUserById,
         createUser: mockCreateUser,
         getUserByEmail:mockGetUserByEmail,
-        getUserByEmailWithPassword: mockGetUserByEmailWithPassword
+        getUserByEmailWithPassword: mockGetUserByEmailWithPassword,
+
 
     }
+}))
 
+jest.unstable_mockModule('bcrypt', ()=>({
+    default:{
+        compare:mockCompare,
+        hash:mockHash
+    }
 }))
 
 const {default: userService} =await import("../app/services/user.service.js");
@@ -136,6 +150,79 @@ test('Тестируем логин, пользователь не найден'
         })
 
     ).rejects.toThrow(NotFoundError);
+
+})
+
+test('Пользователь найден, но пароль неправильный', async () =>{
+
+    mockGetUserByEmailWithPassword.mockResolvedValueOnce({
+        _id: '123',
+        name: 'Sergey',
+        email: 'sergey@test.com',
+        password: 'hashed-password',
+        isActive: true
+    })
+
+    mockCompare.mockResolvedValueOnce(false);
+
+    await expect(
+        userService.loginUser({
+            email: 'sergey@test.com',
+            password: '123456'
+        })
+    ).rejects.toThrow(Unauthorized)
+
+})
+
+test('Пользователь найден, но деактевирован', async () =>{
+
+    mockGetUserByEmailWithPassword.mockResolvedValueOnce({
+        _id: '123',
+        name: 'Sergey',
+        email: 'sergey@test.com',
+        password: 'hashed-password',
+        isActive: false
+    })
+
+    await expect(
+        userService.loginUser({
+            email: 'sergey@test.com',
+            password: '123456'
+        })
+    ).rejects.toThrow(ForbiddenError);
+
+    expect(mockCompare).not.toHaveBeenCalled()
+
+})
+
+test('Пользователь найден, и залогинелся', async () =>{
+
+    mockGetUserByEmailWithPassword.mockResolvedValueOnce({
+        _id: '123',
+        name: 'Sergey',
+        email: 'sergey@test.com',
+        password: 'hashed-password',
+        isActive: true
+    })
+
+    mockCompare.mockResolvedValueOnce(true);
+
+    const result = await userService.loginUser({
+            email: 'sergey@test.com',
+            password: '123456'
+        })
+
+    expect(result.user.id).toBe('123')
+    expect(result.user.name).toBe('Sergey')
+    expect(result.user.email).toBe('sergey@test.com')
+    expect(result.user.isActive).toBe(true)
+    expect(result.token).toEqual(expect.any(String));
+
+    expect(mockCompare).toHaveBeenCalledWith(
+        '123456',
+        'hashed-password'
+    );
+
 
 })
 

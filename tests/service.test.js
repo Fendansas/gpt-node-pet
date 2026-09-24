@@ -10,6 +10,7 @@ const mockGetUserById = jest.fn();
 const mockCreateUser = jest.fn();
 const mockGetUserByEmail = jest.fn()
 const mockGetUserByEmailWithPassword = jest.fn();
+const mockUpdateUser = jest.fn()
 
 const mockCompare = jest.fn();
 const mockHash = jest.fn().mockResolvedValue('fake-hash')
@@ -25,6 +26,7 @@ jest.unstable_mockModule('../app/repositories/user.repository.js',()=>({
         createUser: mockCreateUser,
         getUserByEmail:mockGetUserByEmail,
         getUserByEmailWithPassword: mockGetUserByEmailWithPassword,
+        updateUser: mockUpdateUser
 
 
     }
@@ -205,7 +207,6 @@ test('Пользователь найден, и залогинелся', async (
         isActive: true
     })
 
-    mockCompare.mockResolvedValueOnce(true);
 
     const result = await userService.loginUser({
             email: 'sergey@test.com',
@@ -225,6 +226,103 @@ test('Пользователь найден, и залогинелся', async (
 
 
 })
+
+test('Изминение имени пользователя', async () =>{
+
+    mockUpdateUser.mockResolvedValueOnce({
+        _id: '123',
+        name: 'sas',
+        email: 'sergey@test.com',
+        password: 'hashed-password',
+        isActive: true
+    })
+
+
+    const result = await userService.updateUser('123',{
+        name:'sas'
+    })
+
+
+
+    expect(mockUpdateUser).toHaveBeenCalledWith(
+        '123',
+        {name:'sas'})
+
+    expect(result.name).toBe('sas')
+
+})
+
+test('Изминение емейла пользователя', async () =>{
+
+    mockGetUserByEmail.mockResolvedValueOnce(null)
+
+    mockUpdateUser.mockResolvedValueOnce({
+        _id: '123',
+        name: 'sas',
+        email: 'new@test.com',
+        password: 'hashed-password',
+        isActive: true
+    })
+
+
+    const result = await userService.updateUser('123',{
+        email:'new@test.com'
+    })
+
+
+    expect(mockGetUserByEmail).toHaveBeenCalledWith('new@test.com')
+    expect(mockUpdateUser).toHaveBeenCalledWith(
+        '123',
+        {email:'new@test.com'})
+
+    expect(result.email).toBe('new@test.com')
+
+})
+
+
+test('Email уже занят другим пользователем', async () =>{
+
+    mockGetUserByEmail.mockResolvedValueOnce({_id: '124'})
+
+
+    await expect(userService.updateUser('123', {
+            email: 'new@test.com'
+        })
+    ).rejects.toThrow(ConflictError);
+
+    expect(mockUpdateUser).not.toHaveBeenCalled()
+
+
+})
+
+
+test('Email меняем на такойже', async () =>{
+
+    mockGetUserByEmail.mockResolvedValueOnce({_id: '123'})
+
+    mockUpdateUser.mockResolvedValueOnce({
+        _id: '123',
+        email: 'new@test.com'
+    })
+
+
+    const result = await userService.updateUser('123', {
+            email: 'new@test.com'
+        })
+
+
+    expect(mockGetUserByEmail).toHaveBeenCalledWith('new@test.com')
+
+    expect(mockUpdateUser).toHaveBeenCalledWith(
+        '123',
+        { email: 'new@test.com' }
+    )
+
+    expect(result.email).toBe('new@test.com')
+
+})
+
+
 
 
 

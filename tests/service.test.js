@@ -11,6 +11,10 @@ const mockCreateUser = jest.fn();
 const mockGetUserByEmail = jest.fn()
 const mockGetUserByEmailWithPassword = jest.fn();
 const mockUpdateUser = jest.fn()
+const mockDeactivateUser = jest.fn();
+const mockIncrementTokenVersion = jest.fn();
+const mockActivateUser = jest.fn();
+
 
 const mockCompare = jest.fn();
 const mockHash = jest.fn().mockResolvedValue('fake-hash')
@@ -26,8 +30,10 @@ jest.unstable_mockModule('../app/repositories/user.repository.js',()=>({
         createUser: mockCreateUser,
         getUserByEmail:mockGetUserByEmail,
         getUserByEmailWithPassword: mockGetUserByEmailWithPassword,
-        updateUser: mockUpdateUser
-
+        updateUser: mockUpdateUser,
+        deactivateUser: mockDeactivateUser,
+        incrementTokenVersion: mockIncrementTokenVersion,
+        activateUser: mockActivateUser
 
     }
 }))
@@ -323,7 +329,68 @@ test('Email меняем на такойже', async () =>{
 })
 
 
+test('Деактивация пользователя', async () =>{
 
 
 
+    mockDeactivateUser.mockResolvedValueOnce({
+        _id: '123',
+        name: 'sas',
+        email: 'new@test.com',
+        isActive: false
+    })
+
+
+    const result = await userService.deactivateUser('123')
+
+
+    expect(mockDeactivateUser).toHaveBeenCalledWith('123')
+    expect(mockIncrementTokenVersion).toHaveBeenCalledWith('123')
+    expect(result.email).toBe('new@test.com')
+    expect(result.isActive).toBe(false)
+
+})
+
+test('Пользователь для деактивации не найден', async () =>{
+
+    mockDeactivateUser.mockResolvedValueOnce(null)
+
+
+    await expect(userService.deactivateUser('123')).rejects.toThrow(NotFoundError)
+
+    expect(mockIncrementTokenVersion).not.toHaveBeenCalled()
+})
+
+
+test('Активация пользователя', async () =>{
+
+
+
+    mockActivateUser.mockResolvedValueOnce({
+        _id: '123',
+        name: 'sas',
+        email: 'new@test.com',
+        isActive: true
+    })
+
+
+    const result = await userService.activateUser('123')
+
+
+    expect(mockActivateUser).toHaveBeenCalledWith('123')
+
+    expect(result.email).toBe('new@test.com')
+    expect(result.isActive).toBe(true)
+
+})
+
+test('Пользователь для активации не найден', async () =>{
+
+    mockActivateUser.mockResolvedValueOnce(null)
+
+
+    await expect(userService.activateUser('123')).rejects.toThrow(NotFoundError)
+
+    expect(mockActivateUser).toHaveBeenCalledWith('123')
+})
 

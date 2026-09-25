@@ -394,3 +394,29 @@ test('Пользователь для активации не найден', asy
     expect(mockActivateUser).toHaveBeenCalledWith('123')
 })
 
+
+test('Выход со всех устройств', async () =>{
+
+    mockIncrementTokenVersion.mockResolvedValueOnce({
+        _id: '123',
+        name: 'sas',
+        email: 'new@test.com',
+        isActive: true
+    })
+
+
+    await userService.logoutAll('123')
+    expect(mockIncrementTokenVersion).toHaveBeenCalledWith('123')
+
+})
+
+test('Выход со всех устройств пользоветль не найден', async () =>{
+
+    mockIncrementTokenVersion.mockResolvedValueOnce(null)
+
+    await expect(userService.logoutAll('123')).rejects.toThrow(NotFoundError)
+    expect(mockIncrementTokenVersion).toHaveBeenCalledWith('123')
+
+
+})
+

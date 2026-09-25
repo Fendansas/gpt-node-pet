@@ -15,6 +15,7 @@ const mockDeactivateUser = jest.fn();
 const mockIncrementTokenVersion = jest.fn();
 const mockActivateUser = jest.fn();
 const mockGetUsersAssignable = jest.fn();
+const mockGetUsers = jest.fn();
 
 const mockCompare = jest.fn();
 const mockHash = jest.fn().mockResolvedValue('fake-hash')
@@ -34,7 +35,9 @@ jest.unstable_mockModule('../app/repositories/user.repository.js',()=>({
         deactivateUser: mockDeactivateUser,
         incrementTokenVersion: mockIncrementTokenVersion,
         activateUser: mockActivateUser,
-        getUsersAssignable: mockGetUsersAssignable
+        getUsersAssignable: mockGetUsersAssignable,
+        getUsers: mockGetUsers
+
 
     }
 }))
@@ -421,7 +424,7 @@ test('Выход со всех устройств пользоветль не н
 
 })
 
-test('Получить пользователя для асайна', async () => {
+test('Получить пользователей для асайна', async () => {
 
     mockGetUsersAssignable.mockResolvedValueOnce([
             {
@@ -453,6 +456,47 @@ test('Получить пользователя для асайна', async () =
     expect(result[2].name).toBe('sas2')
 
     expect(mockGetUsersAssignable).toHaveBeenCalled()
+
+})
+
+test('Получить всех пользователей', async () => {
+
+    mockGetUsers.mockResolvedValueOnce([
+        {
+            _id: '123',
+            name: 'sas',
+            email: 'new@test.com',
+            isActive: true
+        },
+        {
+            _id: '124',
+            name: 'sas1',
+            email: 'new@test1.com',
+            isActive: true
+        },
+        {
+            _id: '125',
+            name: 'sas2',
+            email: 'new@test2.com',
+            isActive: true
+        },
+        ]
+    )
+
+
+    const result = await userService.getUsers()
+    expect(result).toHaveLength(3)
+
+    expect(result[0].id).toBe('123')
+    expect(result[0].name).toBe('sas')
+
+    expect(result[1].id).toBe('124')
+    expect(result[1].name).toBe('sas1')
+
+    expect(result[2].id).toBe('125')
+    expect(result[2].name).toBe('sas2')
+
+    expect(mockGetUsers).toHaveBeenCalled()
 
 })
 

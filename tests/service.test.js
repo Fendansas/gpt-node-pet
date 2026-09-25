@@ -14,7 +14,7 @@ const mockUpdateUser = jest.fn()
 const mockDeactivateUser = jest.fn();
 const mockIncrementTokenVersion = jest.fn();
 const mockActivateUser = jest.fn();
-
+const mockGetUsersAssignable = jest.fn();
 
 const mockCompare = jest.fn();
 const mockHash = jest.fn().mockResolvedValue('fake-hash')
@@ -33,7 +33,8 @@ jest.unstable_mockModule('../app/repositories/user.repository.js',()=>({
         updateUser: mockUpdateUser,
         deactivateUser: mockDeactivateUser,
         incrementTokenVersion: mockIncrementTokenVersion,
-        activateUser: mockActivateUser
+        activateUser: mockActivateUser,
+        getUsersAssignable: mockGetUsersAssignable
 
     }
 }))
@@ -417,6 +418,41 @@ test('Выход со всех устройств пользоветль не н
     await expect(userService.logoutAll('123')).rejects.toThrow(NotFoundError)
     expect(mockIncrementTokenVersion).toHaveBeenCalledWith('123')
 
+
+})
+
+test('Получить пользователя для асайна', async () => {
+
+    mockGetUsersAssignable.mockResolvedValueOnce([
+            {
+                _id: '123',
+                name: 'sas',
+            },
+            {
+                _id: '124',
+                name: 'sas1',
+            },
+            {
+                _id: '125',
+                name: 'sas2',
+            },
+        ]
+    )
+
+
+    const result = await userService.getUsersAssignable()
+    expect(result).toHaveLength(3)
+
+    expect(result[0]._id).toBe('123')
+    expect(result[0].name).toBe('sas')
+
+    expect(result[1]._id).toBe('124')
+    expect(result[1].name).toBe('sas1')
+
+    expect(result[2]._id).toBe('125')
+    expect(result[2].name).toBe('sas2')
+
+    expect(mockGetUsersAssignable).toHaveBeenCalled()
 
 })
 

@@ -1,4 +1,5 @@
 import taskService from "../services/task.service.js";
+import {deleteFile} from "../utils/file.utils.js";
 
 
 class TaskController {
@@ -48,8 +49,15 @@ class TaskController {
             mimetype:req.file.mimetype,
             size:req.file.size,
         }
-        const task = await taskService.addAttachment(taskId,file,user )
-        return res.status(200).json(task);
+        try {
+            const task = await taskService.addAttachment(taskId, file, user)
+            return res.status(200).json(task);
+        } catch (error){
+            deleteFile(req.file.path)
+            next(error)
+        }
+
+
     }
 
 

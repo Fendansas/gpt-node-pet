@@ -38,6 +38,20 @@ class TaskController {
         return res.status(200).json(tasks)
     }
 
+    async addAttachment (req, res, next) {
+        const taskId = req.params.id
+        const user = req.user
+        const file = {
+            originalName:req.file.originalname,
+            filename:req.file.filename,
+            path:req.file.path,
+            mimetype:req.file.mimetype,
+            size:req.file.size,
+        }
+        const task = await taskService.addAttachment(taskId,file,user )
+        return res.status(200).json(task);
+    }
+
 
     async updateTask(req, res, next){
         const task = await taskService.updateTask(

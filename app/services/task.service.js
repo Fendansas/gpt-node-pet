@@ -159,6 +159,25 @@ class TaskService{
 
     }
 
+    async addAttachment(id, attachment, user) {
+        const task = await taskRepository.getTaskById(id)
+
+        if (!task){
+            throw new NotFoundError('Task not found');
+        }
+
+        const isCreator = task.createdBy.toString() === user.userId.toString()
+        const isAssignee = !!task.assignedTo && task.assignedTo.toString() === user.userId.toString();
+
+        if (isCreator === false && isAssignee === false && user.role !== 'admin'){
+            throw new ForbiddenError('Forbidden');
+        }
+
+        return taskRepository.addAttachment(id, attachment)
+
+
+    }
+
     async deleteTask(id, user){
 
         const task = await taskRepository.getTaskById(id)

@@ -8,6 +8,7 @@ import validate from "../middleware/validation.middleware.js";
 import validateQuery from "../middleware/validateQuery.middleware.js";
 import validateObjectId from "../middleware/validateObjectId.middleware.js";
 import roleMiddleware from "../middleware/role.middleware.js";
+import upload from "../middleware/upload.middleware.js";
 
 
 const router = express.Router();
@@ -51,6 +52,15 @@ router.delete('/:id',
     roleMiddleware('admin'),
     validateObjectId('task'),
     asyncHandler(taskController.deleteTask));
+
+
+router.post(
+    '/:id/files',
+    authMiddleware,
+    validateObjectId('task'),
+    upload.single('file'),
+    asyncHandler(taskController.addAttachment)
+);
 
 
 

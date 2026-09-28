@@ -74,6 +74,25 @@ class TaskRepository{
     async deleteTask(id){
         return Task.findByIdAndDelete(id);
     }
+
+
+    async addAttachment(id, attachment){
+        const task = await Task.findByIdAndUpdate(
+            id,
+            {$push:
+                    {attachments: attachment}
+            },
+            {
+                new: true,
+                runValidators: true
+            }
+        );
+
+        return task
+
+    }
+
+
 }
 
 

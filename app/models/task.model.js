@@ -31,7 +31,14 @@ const taskSchema = new Schema({
     assignedTo:{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    }
+    },
+    attachments: [{
+        originalName: String,
+        filename: String,
+        path: String,
+        mimetype: String,
+        size: Number
+    }]
 },{
     timestamps: true
 });

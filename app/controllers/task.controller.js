@@ -53,7 +53,12 @@ class TaskController {
             const task = await taskService.addAttachment(taskId, file, user)
             return res.status(200).json(task);
         } catch (error){
-            deleteFile(req.file.path)
+            try {
+                await deleteFile(req.file.path)
+            } catch (deleteError){
+                console.error('Failed to delete uploaded file:', deleteError);
+            }
+
             next(error)
         }
 

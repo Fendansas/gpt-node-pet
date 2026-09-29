@@ -8,6 +8,7 @@ import validate from "../middleware/validation.middleware.js";
 import validateQuery from "../middleware/validateQuery.middleware.js";
 import validateObjectId from "../middleware/validateObjectId.middleware.js";
 import roleMiddleware from "../middleware/role.middleware.js";
+import requireFile from "../middleware/requireFile.middleware.js";
 import upload from "../middleware/upload.middleware.js";
 
 
@@ -59,6 +60,7 @@ router.post(
     authMiddleware,
     validateObjectId('task'),
     upload.single('file'),
+    requireFile,
     asyncHandler(taskController.addAttachment)
 );
 

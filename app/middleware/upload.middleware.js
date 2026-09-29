@@ -1,5 +1,7 @@
 import multer from 'multer';
 
+import {BadRequestError} from "../errors/BadRequestError.js";
+
 const upload = multer({
     dest: 'uploads/',
     limits:{
@@ -9,7 +11,7 @@ const upload = multer({
         if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
             cb(null, true)
         } else {
-            cb(new Error('Недопустимый формат файла. Разрешены только JPEG и PNG'))
+            cb(new BadRequestError('Недопустимый формат файла. Разрешены только JPEG и PNG'))
         }
     }
 })

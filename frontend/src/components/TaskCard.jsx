@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil, Trash2, User } from 'lucide-react';
+import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil, Trash2, User, Paperclip } from 'lucide-react';
 import { getStatusConfig, getPriorityConfig } from '../utils/constants';
 import { useAuth } from '../hooks/useAuth';
 
@@ -74,12 +74,20 @@ export function TaskCard({ task, index = 0, onEdit, onDelete, users = [] }) {
         <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium border ${status.color}`}>
           {status.label}
         </span>
-        <div className="flex items-center gap-1.5 text-slate-500 text-xs">
-          <Calendar size={12} />
-          {new Date(task.createdAt).toLocaleDateString('ru-RU', {
-            day: 'numeric',
-            month: 'short',
-          })}
+        <div className="flex items-center gap-3">
+          {task.attachments?.length > 0 && (
+            <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+              <Paperclip size={12} />
+              {task.attachments.length}
+            </span>
+          )}
+          <div className="flex items-center gap-1.5 text-slate-500 text-xs">
+            <Calendar size={12} />
+            {new Date(task.createdAt).toLocaleDateString('ru-RU', {
+              day: 'numeric',
+              month: 'short',
+            })}
+          </div>
         </div>
       </div>
 

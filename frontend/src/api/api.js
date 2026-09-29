@@ -25,4 +25,12 @@ api.interceptors.response.use(
   }
 );
 
+export const uploadFile = (taskId, file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return api.post(`/tasks/${taskId}/files`, formData, {
+    headers: { 'Content-Type': undefined },
+  });
+};
+
 export default api;

@@ -21,6 +21,10 @@ app.use((err, req, res, next) => {
         statusCode = 400;
     }
 
+    if (!statusCode && err.code === 'LIMIT_FILE_SIZE'){
+        statusCode = 413;
+    }
+
     if (!statusCode){
         statusCode = 500
     }

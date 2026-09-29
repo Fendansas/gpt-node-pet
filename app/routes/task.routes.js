@@ -10,6 +10,7 @@ import validateObjectId from "../middleware/validateObjectId.middleware.js";
 import roleMiddleware from "../middleware/role.middleware.js";
 import requireFile from "../middleware/requireFile.middleware.js";
 import upload from "../middleware/upload.middleware.js";
+import fileType from "../middleware/validateFileContent.js";
 
 
 const router = express.Router();
@@ -57,10 +58,11 @@ router.delete('/:id',
 
 router.post(
     '/:id/files',
-    authMiddleware,
+    asyncHandler(authMiddleware),
     validateObjectId('task'),
     upload.single('file'),
     requireFile,
+    fileType,
     asyncHandler(taskController.addAttachment)
 );
 

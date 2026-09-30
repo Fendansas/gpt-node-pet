@@ -5,6 +5,7 @@ import {ForbiddenError} from "../errors/ForbiddenError.js";
 import { canTransition } from "../utils/taskStatusTransitions.js";
 import { canChangeStatus } from "../utils/taskStatusPermissions.js";
 import {ConflictError} from "../errors/ConflictError.js";
+import {taskResponse} from "../utils/taskResponse.js";
 
 
 class TaskService{
@@ -24,7 +25,7 @@ class TaskService{
 
         const task = await taskRepository.createTask(data)
 
-        return task
+        return taskResponse(task);
     }
 
     async getTasks(user, filter, sort, limit, page){
@@ -40,63 +41,64 @@ class TaskService{
         return tasks
     }
 
-    async updateTask (id, data, user){
+    async updateTask(id, data, user) {
         const task = await taskRepository.getTaskById(id)
 
-        if (!task){
+        if (!task) {
             throw new NotFoundError('Task not found');
         }
 
-        if(data.status !== undefined && user.role !== 'admin'){
-
+        if (data.status !== undefined && user.role !== 'admin') {
             const currentStatus = task.status;
             const newStatus = data.status;
 
-            if(!canTransition(currentStatus, newStatus)){
+            if (!canTransition(currentStatus, newStatus)) {
                 throw new ForbiddenError('Invalid status transition')
             }
 
-            if(!canChangeStatus(task, user, currentStatus, newStatus)){
+            if (!canChangeStatus(task, user, currentStatus, newStatus)) {
                 throw new ForbiddenError('You cannot change task status')
             }
         }
 
-
-
         const isCreator = task.createdBy.toString() === user.userId.toString()
+
         const isAssignee =
             !!task.assignedTo &&
             task.assignedTo.toString() === user.userId.toString();
 
-        if (isCreator === false && isAssignee === false && user.role !== 'admin'){
+        if (!isCreator && !isAssignee && user.role !== 'admin') {
             throw new ForbiddenError('Forbidden');
         }
 
         let updateData = {};
 
-
-        if (user.role === 'admin') {
+        if (data.status !== undefined && user.role !== 'admin') {
             updateData = data;
-        } else if (isCreator) {
 
-            if(data.title !== undefined){
+        } else if (isCreator) {
+            if (data.title !== undefined) {
                 updateData.title = data.title
             }
-            if(data.description !== undefined){
+
+            if (data.description !== undefined) {
                 updateData.description = data.description
             }
-            if(data.priority !== undefined){
+
+            if (data.priority !== undefined) {
                 updateData.priority = data.priority
             }
-            if(data.assignedTo !== undefined){
 
+            if (data.assignedTo !== undefined) {
                 updateData.assignedTo = data.assignedTo
             }
+
             if (data.status !== undefined) {
                 updateData.status = data.status;
             }
+
         } else if (isAssignee) {
-            if(data.status !== undefined){
+            if (data.status !== undefined) {
                 updateData.status = data.status
             }
         }
@@ -108,7 +110,7 @@ class TaskService{
                 throw new NotFoundError('Assigned user not found');
             }
 
-            if(!newAssignedTo.isActive){
+            if (!newAssignedTo.isActive) {
                 throw new ForbiddenError('Cannot assign task to inactive user');
             }
         }
@@ -117,7 +119,7 @@ class TaskService{
             throw new ForbiddenError('Forbidden');
         }
 
-        let updatedTask = await taskRepository.updateTask(id, updateData);
+        let updatedTask;
 
         if (data.status !== undefined && user.role !== 'admin') {
             updatedTask = await taskRepository.updateTask(
@@ -135,8 +137,8 @@ class TaskService{
         if (!updatedTask) {
             throw new ConflictError('Task was modified by another request');
         }
-        return updatedTask
 
+        return taskResponse(updatedTask);
     }
 
     async getTaskById(id, user){
@@ -154,7 +156,7 @@ class TaskService{
             throw new ForbiddenError('Forbidden');
         }
 
-        return task;
+        return taskResponse(task);
 
 
     }
@@ -173,7 +175,7 @@ class TaskService{
             throw new ForbiddenError('Forbidden');
         }
 
-        return taskRepository.addAttachment(id, attachment)
+        return taskResponse(taskRepository.addAttachment(id, attachment))
 
 
     }

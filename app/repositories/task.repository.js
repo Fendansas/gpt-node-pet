@@ -53,7 +53,7 @@ class TaskRepository{
             filter.status = expectedStatus;
         }
 
-        const task = await Task.findByIdAndUpdate(
+        const task = await Task.findOneAndUpdate(
             filter,
             data,
             {

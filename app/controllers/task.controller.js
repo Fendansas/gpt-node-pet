@@ -1,7 +1,11 @@
 import taskService from "../services/task.service.js";
 import {deleteFile} from "../utils/file.utils.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 class TaskController {
     async createTask (req, res, next){
         const data = {
@@ -99,6 +103,20 @@ class TaskController {
         const task  = await taskService.cancelTask(req.params.id, req.user);
 
         return res.status(200).json(task)
+    }
+
+    async getFile(req, res, next) {
+        const attachment = await taskService.getFile(
+            req.params.id,
+            req.params.fileId,
+            req.user
+        )
+
+       const pathFile =  path.resolve(__dirname, '..', '..', attachment.path);
+        res.type(attachment.mimetype);
+        return res.sendFile(pathFile)
+
+
     }
 }
 

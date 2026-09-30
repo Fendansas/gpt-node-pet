@@ -33,4 +33,8 @@ export const uploadFile = (taskId, file) => {
   });
 };
 
+export const downloadFile = (taskId, fileId) => {
+  return api.get(`/tasks/${taskId}/files/${fileId}`, { responseType: 'blob' });
+};
+
 export default api;

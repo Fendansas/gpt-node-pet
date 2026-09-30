@@ -31,20 +31,20 @@ router.get('/',
 
 router.get('/:id',
     asyncHandler(authMiddleware),
-    validateObjectId('task'),
+    validateObjectId('id', 'task'),
     asyncHandler(taskController.getTaskById)
 )
 
 router.patch('/:id',
     asyncHandler(authMiddleware),
-    validateObjectId('task'),
+    validateObjectId('id', 'task'),
     validate(updateTaskSchema),
     asyncHandler(taskController.updateTask)
 );
 
 router.post('/:id/cancel',
     asyncHandler(authMiddleware),
-    validateObjectId('task'),
+    validateObjectId('id', 'task'),
     asyncHandler(taskController.cancelTask)
 
     );
@@ -52,19 +52,28 @@ router.post('/:id/cancel',
 router.delete('/:id',
     asyncHandler(authMiddleware),
     roleMiddleware('admin'),
-    validateObjectId('task'),
+    validateObjectId('id', 'task'),
     asyncHandler(taskController.deleteTask));
 
 
 router.post(
     '/:id/files',
     asyncHandler(authMiddleware),
-    validateObjectId('task'),
+    validateObjectId('id', 'task'),
     upload.single('file'),
     requireFile,
     fileType,
     asyncHandler(taskController.addAttachment)
 );
+
+router.get(
+    '/:id/files/:fileId',
+    asyncHandler(authMiddleware),
+    validateObjectId('id'),
+    validateObjectId('fileId'),
+    asyncHandler(taskController.getFile)
+
+)
 
 
 

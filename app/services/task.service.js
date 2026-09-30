@@ -219,6 +219,23 @@ class TaskService{
 
         return taskRepository.updateTask(id, {status: 'cancelled'})
     }
+
+
+    async getFile(taskId, fileId, user) {
+        const task = await this.getTaskById(taskId, user);
+
+        const attachment = task.attachments.find(
+            attachment => attachment._id.toString() === fileId
+        )
+        if (!attachment) {
+            throw new NotFoundError('File not found');
+        }
+
+
+        return attachment
+
+
+    }
 }
 
 export default new TaskService();

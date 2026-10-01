@@ -1,5 +1,5 @@
 import taskService from "../services/task.service.js";
-import {deleteFile} from "../utils/file.utils.js";
+import {deleteFile} from "../utils/deleteFile.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 

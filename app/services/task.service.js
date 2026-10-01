@@ -6,7 +6,7 @@ import { canTransition } from "../utils/taskStatusTransitions.js";
 import { canChangeStatus } from "../utils/taskStatusPermissions.js";
 import {ConflictError} from "../errors/ConflictError.js";
 import {taskResponse} from "../utils/taskResponse.js";
-
+import {deleteFile} from "../utils/deleteFile.js";
 
 class TaskService{
 
@@ -36,9 +36,11 @@ class TaskService{
                 {assignedTo: user.userId}
             ]
         }
-        const tasks = await taskRepository.getTasks(filter, sort, limit, page);
+        const result = await taskRepository.getTasks(filter, sort, limit, page);
 
-        return tasks
+        result.tasks = result.tasks.map(taks => taskResponse(taks))
+
+        return result
     }
 
     async updateTask(id, data, user) {
@@ -73,9 +75,26 @@ class TaskService{
 
         let updateData = {};
 
-        if (data.status !== undefined && user.role !== 'admin') {
-            updateData = data;
+        if (user.role === 'admin') {
+            if (data.title !== undefined) {
+                updateData.title = data.title
+            }
 
+            if (data.description !== undefined) {
+                updateData.description = data.description
+            }
+
+            if (data.priority !== undefined) {
+                updateData.priority = data.priority
+            }
+
+            if (data.assignedTo !== undefined) {
+                updateData.assignedTo = data.assignedTo
+            }
+
+            if (data.status !== undefined) {
+                updateData.status = data.status;
+            }
         } else if (isCreator) {
             if (data.title !== undefined) {
                 updateData.title = data.title
@@ -193,7 +212,16 @@ class TaskService{
             throw new ForbiddenError('Forbidden');
         }
 
-        return  taskRepository.deleteTask(id)
+        for (const attachment of task.attachments) {
+            try {
+                await deleteFile(attachment.path)
+            } catch (error){
+                console.log(error)
+            }
+
+        }
+
+        await taskRepository.deleteTask(id)
 
     }
 
@@ -219,12 +247,27 @@ class TaskService{
             throw new ForbiddenError('Cannot cancel completed task')
         }
 
-        return taskRepository.updateTask(id, {status: 'cancelled'})
+        const updatedTask = await taskRepository.updateTask(id, {status: 'cancelled'}, task.status)
+        if (!updatedTask) {
+            throw new ConflictError('Task was modified by another request');
+        }
+
+        return taskResponse(updatedTask);
     }
 
 
     async getFile(taskId, fileId, user) {
-        const task = await this.getTaskById(taskId, user);
+        const task = await taskRepository.getTaskById(taskId)
+
+        if (!task){
+            throw new NotFoundError('Task not found')
+        }
+        const isCreator = task.createdBy.toString() === user.userId.toString();
+        const isAssignee = !!task.assignedTo && task.assignedTo.toString() === user.userId.toString();
+
+        if (!isCreator && !isAssignee && user.role !== 'admin') {
+            throw new ForbiddenError('Forbidden');
+        }
 
         const attachment = task.attachments.find(
             attachment => attachment._id.toString() === fileId

@@ -1,6 +1,6 @@
 import {fileTypeFromFile} from 'file-type';
 import {BadRequestError} from "../errors/BadRequestError.js";
-import {deleteFile} from "../utils/file.utils.js";
+import {deleteFile} from "../utils/deleteFile.js";
 const fileType = async (req, res, next) => {
 
 

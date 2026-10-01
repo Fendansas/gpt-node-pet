@@ -1,5 +1,8 @@
 import {attachmentsResponse} from "./attachmentResponse.js";
 
 export const taskResponse = (task) => {
-   return {...task, attachments: attachmentsResponse(task.attachments)}
+
+   const taskObject = task.toObject()
+
+   return {...taskObject, attachments: attachmentsResponse(task.attachments)}
 }

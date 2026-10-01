@@ -28,7 +28,7 @@ export const updateTaskSchema = z.object({
             {
                 message: 'Invalid user id'
             }
-        ).optional()
+        ).optional().nullable()
 }).refine(
     (data) =>{
         return Object.values(data).some((value) => value !== undefined);

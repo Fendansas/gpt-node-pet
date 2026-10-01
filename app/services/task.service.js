@@ -122,7 +122,7 @@ class TaskService{
             }
         }
 
-        if (updateData.assignedTo !== undefined) {
+        if (updateData.assignedTo !== undefined && updateData.assignedTo !== null) {
             const newAssignedTo = await userRepository.getUserById(updateData.assignedTo);
 
             if (!newAssignedTo) {

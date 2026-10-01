@@ -38,6 +38,47 @@ const taskSchema = new Schema({
         path: String,
         mimetype: String,
         size: Number
+    }],
+    history:[{
+        action: String,
+        changedBy: {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        changes:{
+            status:{
+                from: String,
+                to: String
+            },
+            title:{
+                from: String,
+                to: String
+            },
+            description:{
+                from: String,
+                to: String
+            },
+            priority:{
+                from: String,
+                to: String
+            },
+            assignedTo:{
+                from: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'User',
+                },
+                to: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'User',
+                },
+            }
+
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
     }]
 },{
     timestamps: true

@@ -7,6 +7,7 @@ import { canChangeStatus } from "../utils/taskStatusPermissions.js";
 import {ConflictError} from "../errors/ConflictError.js";
 import {taskResponse} from "../utils/taskResponse.js";
 import {deleteFile} from "../utils/deleteFile.js";
+import {buildTaskChanges} from "../utils/buildTaskChanges.js";
 
 class TaskService{
 
@@ -137,19 +138,34 @@ class TaskService{
         if (Object.keys(updateData).length === 0) {
             throw new ForbiddenError('Forbidden');
         }
+        const changes = buildTaskChanges(task, updateData);
+
+        let history = null;
+
+        if (Object.keys(changes).length > 0) {
+            history = {
+                action: 'task_updated',
+                changedBy: user.userId,
+                changes
+            }
+        }
+        const update = {
+            updateData,
+            history
+        }
 
         let updatedTask;
 
         if (data.status !== undefined && user.role !== 'admin') {
             updatedTask = await taskRepository.updateTask(
                 id,
-                updateData,
+                update,
                 task.status
             );
         } else {
             updatedTask = await taskRepository.updateTask(
                 id,
-                updateData
+                update
             );
         }
         
@@ -246,8 +262,22 @@ class TaskService{
         if(task.status === 'done' && user.role !== 'admin'){
             throw new ForbiddenError('Cannot cancel completed task')
         }
+        const updateData = {status: 'cancelled'}
 
-        const updatedTask = await taskRepository.updateTask(id, {status: 'cancelled'}, task.status)
+        const changes = buildTaskChanges(task, updateData);
+
+        const history = {
+            action: 'task_cancelled',
+            changedBy: user.userId,
+            changes
+        }
+        const update = {
+            updateData,
+            history
+        }
+
+
+        const updatedTask = await taskRepository.updateTask(id, update, task.status)
         if (!updatedTask) {
             throw new ConflictError('Task was modified by another request');
         }

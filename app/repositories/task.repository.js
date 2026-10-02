@@ -48,14 +48,22 @@ class TaskRepository{
     async updateTask(id, data, expectedStatus = null) {
 
         const filter = {_id: id};
+        const { updateData, history } = data;
 
         if (expectedStatus !== null) {
             filter.status = expectedStatus;
         }
-
+        let update = {
+            $set: updateData
+        };
+        if (history){
+            update.$push = {
+                history
+            }
+        }
         const task = await Task.findOneAndUpdate(
             filter,
-            data,
+            update,
             {
                 new: true,
                 runValidators: true

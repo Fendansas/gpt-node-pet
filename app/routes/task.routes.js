@@ -69,8 +69,8 @@ router.post(
 router.get(
     '/:id/files/:fileId',
     asyncHandler(authMiddleware),
-    validateObjectId('id'),
-    validateObjectId('fileId'),
+    validateObjectId('id', 'task'),
+    validateObjectId('fileId', 'file'),
     asyncHandler(taskController.getFile)
 
 )

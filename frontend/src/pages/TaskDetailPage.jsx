@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, User, Pencil, Trash2, AlertTriangle, ArrowDown, ArrowUp, Minus, Ban, Paperclip, Upload, FileImage, File, Download } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Pencil, Trash2, AlertTriangle, ArrowDown, ArrowUp, Minus, Ban, Paperclip, Upload, FileImage, File, Download, History, List } from 'lucide-react';
 import api, { uploadFile, downloadFile } from '../api/api';
 import { useAuth } from '../hooks/useAuth';
 import { getStatusConfig, getPriorityConfig } from '../utils/constants';
 import { EditTaskForm } from '../components/EditTaskForm';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { TaskHistory } from '../components/TaskHistory';
 import toast from 'react-hot-toast';
 
 const priorityIcons = {
@@ -29,6 +30,7 @@ export function TaskDetailPage() {
   const [cancelling, setCancelling] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [filePreviews, setFilePreviews] = useState({});
+  const [activeTab, setActiveTab] = useState('details');
   const fileInputRef = useRef(null);
 
   const fetchTask = async () => {
@@ -255,63 +257,74 @@ export function TaskDetailPage() {
           </div>
         </div>
 
-        <div className="p-8 space-y-6">
-          {task.description && (
-            <div>
-              <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-2">Описание</h3>
-              <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">{task.description}</p>
-            </div>
-          )}
+        <div className="px-8 pt-4">
+          <div className="flex gap-2 border-b border-slate-700/50">
+            <button
+              onClick={() => setActiveTab('details')}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                activeTab === 'details'
+                  ? 'border-indigo-500 text-indigo-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <List size={16} />
+              Детали
+            </button>
+            <button
+              onClick={() => setActiveTab('history')}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                activeTab === 'history'
+                  ? 'border-indigo-500 text-indigo-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <History size={16} />
+              История
+            </button>
+          </div>
+        </div>
 
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-4">
+        {activeTab === 'details' && (
+          <div className="p-8 space-y-6">
+            {task.description && (
               <div>
-                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Исполнитель</h3>
-                <div className="flex items-center gap-2">
-                  <User size={16} className="text-slate-400" />
-                  {assignee ? (
-                    <span className="text-slate-200 font-medium">{assignee.name}</span>
-                  ) : (
-                    <span className="text-slate-500 italic">Не назначен</span>
-                  )}
-                </div>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-2">Описание</h3>
+                <p className="text-slate-300 leading-relaxed whitespace-pre-wrap">{task.description}</p>
               </div>
+            )}
 
-              <div>
-                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Создатель</h3>
-                <div className="flex items-center gap-2">
-                  <User size={16} className="text-slate-400" />
-                  <span className="text-slate-200 font-medium">
-                    {users.find((u) => u._id === task.createdBy)?.name || 'Неизвестный'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Создано</h3>
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} className="text-slate-400" />
-                  <span className="text-slate-200">
-                    {new Date(task.createdAt).toLocaleDateString('ru-RU', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-              </div>
-
-              {task.updatedAt !== task.createdAt && (
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Обновлено</h3>
+                  <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Исполнитель</h3>
+                  <div className="flex items-center gap-2">
+                    <User size={16} className="text-slate-400" />
+                    {assignee ? (
+                      <span className="text-slate-200 font-medium">{assignee.name}</span>
+                    ) : (
+                      <span className="text-slate-500 italic">Не назначен</span>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Создатель</h3>
+                  <div className="flex items-center gap-2">
+                    <User size={16} className="text-slate-400" />
+                    <span className="text-slate-200 font-medium">
+                      {users.find((u) => u._id === task.createdBy)?.name || 'Неизвестный'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Создано</h3>
                   <div className="flex items-center gap-2">
                     <Calendar size={16} className="text-slate-400" />
                     <span className="text-slate-200">
-                      {new Date(task.updatedAt).toLocaleDateString('ru-RU', {
+                      {new Date(task.createdAt).toLocaleDateString('ru-RU', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
@@ -321,94 +334,118 @@ export function TaskDetailPage() {
                     </span>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
 
-          {task.attachments?.length > 0 && (
-            <div>
-              <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-3">Вложения</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {task.attachments.map((file) => {
-                  const isImage = file.mimetype?.startsWith('image/');
-                  const previewUrl = filePreviews[file._id];
-                  return (
-                    <div
-                      key={file._id}
-                      className="rounded-xl bg-slate-800/30 border border-slate-700/30 overflow-hidden"
-                    >
-                      {isImage && previewUrl ? (
-                        <div
-                          className="relative group cursor-pointer aspect-[4/3] bg-slate-900"
-                          onClick={() => handleOpenFull(file)}
-                        >
-                          <img
-                            src={previewUrl}
-                            alt={file.originalName}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <span className="text-white text-sm font-medium">Открыть</span>
-                          </div>
-                        </div>
-                      ) : isImage ? (
-                        <div className="aspect-[4/3] bg-slate-900 flex items-center justify-center">
-                          <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                        </div>
-                      ) : (
-                        <div className="aspect-[4/3] bg-slate-900 flex flex-col items-center justify-center gap-2">
-                          <File size={32} className="text-slate-500" />
-                        </div>
-                      )}
-                      <div className="p-3">
-                        <p className="text-sm text-slate-200 truncate mb-1" title={file.originalName}>
-                          {file.originalName}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-slate-500">
-                            {(file.size / 1024).toFixed(1)} КБ
-                          </span>
-                          <button
-                            onClick={() => handleDownload(file)}
-                            className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-                          >
-                            <Download size={12} />
-                            Скачать
-                          </button>
-                        </div>
-                      </div>
+                {task.updatedAt !== task.createdAt && (
+                  <div>
+                    <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-1.5">Обновлено</h3>
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-slate-400" />
+                      <span className="text-slate-200">
+                        {new Date(task.updatedAt).toLocaleDateString('ru-RU', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
                     </div>
-                  );
-                })}
+                  </div>
+                )}
               </div>
             </div>
-          )}
 
-          {canUpload && (
-            <div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".jpg,.jpeg,.png"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {uploading ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Upload size={16} />
-                )}
-                {uploading ? 'Загрузка...' : 'Загрузить файл'}
-              </button>
-              <p className="text-xs text-slate-600 mt-2">JPEG или PNG, максимум 5 МБ</p>
-            </div>
-          )}
-        </div>
+            {task.attachments?.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-3">Вложения</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {task.attachments.map((file) => {
+                    const isImage = file.mimetype?.startsWith('image/');
+                    const previewUrl = filePreviews[file._id];
+                    return (
+                      <div
+                        key={file._id}
+                        className="rounded-xl bg-slate-800/30 border border-slate-700/30 overflow-hidden"
+                      >
+                        {isImage && previewUrl ? (
+                          <div
+                            className="relative group cursor-pointer aspect-[4/3] bg-slate-900"
+                            onClick={() => handleOpenFull(file)}
+                          >
+                            <img
+                              src={previewUrl}
+                              alt={file.originalName}
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <span className="text-white text-sm font-medium">Открыть</span>
+                            </div>
+                          </div>
+                        ) : isImage ? (
+                          <div className="aspect-[4/3] bg-slate-900 flex items-center justify-center">
+                            <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                          </div>
+                        ) : (
+                          <div className="aspect-[4/3] bg-slate-900 flex flex-col items-center justify-center gap-2">
+                            <File size={32} className="text-slate-500" />
+                          </div>
+                        )}
+                        <div className="p-3">
+                          <p className="text-sm text-slate-200 truncate mb-1" title={file.originalName}>
+                            {file.originalName}
+                          </p>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-slate-500">
+                              {(file.size / 1024).toFixed(1)} КБ
+                            </span>
+                            <button
+                              onClick={() => handleDownload(file)}
+                              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                            >
+                              <Download size={12} />
+                              Скачать
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {canUpload && (
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-300 hover:text-white hover:bg-slate-700/50 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {uploading ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Upload size={16} />
+                  )}
+                  {uploading ? 'Загрузка...' : 'Загрузить файл'}
+                </button>
+                <p className="text-xs text-slate-600 mt-2">JPEG или PNG, максимум 5 МБ</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'history' && (
+          <div className="p-8">
+            <TaskHistory history={task.history} users={users} />
+          </div>
+        )}
       </motion.div>
 
       <EditTaskForm

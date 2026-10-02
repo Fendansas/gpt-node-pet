@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil, Trash2, User, Paperclip } from 'lucide-react';
+import { Calendar, ArrowDown, ArrowUp, Minus, AlertTriangle, Pencil, Trash2, User, Paperclip, Ban } from 'lucide-react';
 import { getStatusConfig, getPriorityConfig } from '../utils/constants';
 import { useAuth } from '../hooks/useAuth';
 
@@ -11,7 +11,7 @@ const priorityIcons = {
   critical: AlertTriangle,
 };
 
-export function TaskCard({ task, index = 0, onEdit, onDelete, users = [] }) {
+export function TaskCard({ task, index = 0, onEdit, onDelete, onCancel, users = [] }) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const status = getStatusConfig(task.status);
@@ -21,6 +21,7 @@ export function TaskCard({ task, index = 0, onEdit, onDelete, users = [] }) {
   const assignee = users.find((u) => u._id === task.assignedTo);
   const isCreator = task.createdBy?.toString() === user?.id?.toString();
   const canDelete = isCreator || user?.role === 'admin';
+  const canCancel = canDelete && !['done', 'cancelled'].includes(task.status);
 
   return (
     <motion.div
@@ -59,6 +60,17 @@ export function TaskCard({ task, index = 0, onEdit, onDelete, users = [] }) {
               className="w-7 h-7 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100"
             >
               <Trash2 size={13} />
+            </button>
+          )}
+          {canCancel && onCancel && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onCancel(task._id);
+              }}
+              className="w-7 h-7 rounded-lg bg-slate-800/50 flex items-center justify-center text-slate-500 hover:text-amber-400 hover:bg-amber-500/10 transition-all opacity-0 group-hover:opacity-100"
+            >
+              <Ban size={13} />
             </button>
           )}
         </div>

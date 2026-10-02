@@ -79,6 +79,16 @@ export function TasksPage() {
     if (task) setConfirmTask(task);
   };
 
+  const handleCancelTask = async (taskId) => {
+    try {
+      await api.post(`/tasks/${taskId}/cancel`);
+      toast.success('Задача отменена');
+      fetchTasks();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Ошибка отмены');
+    }
+  };
+
   const handleConfirmDelete = async () => {
     if (!confirmTask) return;
     setDeleting(true);
@@ -148,6 +158,7 @@ export function TasksPage() {
               index={index}
               onEdit={setEditTask}
               onDelete={handleDeleteTask}
+              onCancel={handleCancelTask}
               users={users}
             />
           ))}

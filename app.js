@@ -8,7 +8,12 @@ app.use(express.json());
 
 app.use('/users',user);
 app.use('/tasks',task);
-
+app.use((req, res)=>{
+    res.status(404).json({
+        status: 'error',
+        message: 'Route not found'
+    })
+})
 
 app.use((err, req, res, next) => {
 

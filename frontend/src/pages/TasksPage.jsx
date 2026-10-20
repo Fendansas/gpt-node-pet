@@ -15,7 +15,7 @@ export function TasksPage() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
-  const [filters, setFilters] = useState({ status: '', priority: '', sort: '' });
+  const [filters, setFilters] = useState({ status: '', priority: '', sort: '', search: '' });
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
@@ -32,6 +32,7 @@ export function TasksPage() {
       if (filters.status) params.status = filters.status;
       if (filters.priority) params.priority = filters.priority;
       if (filters.sort) params.sort = filters.sort;
+      if (filters.search) params.search = filters.search;
 
       const { data } = await api.get('/tasks', { params });
       setTasks(data.tasks);
@@ -146,8 +147,17 @@ export function TasksPage() {
           className="flex flex-col items-center justify-center py-20 text-slate-500"
         >
           <Inbox size={48} className="mb-4 text-slate-600" />
-          <p className="text-lg font-medium">Нет задач</p>
-          <p className="text-sm">Создайте первую задачу</p>
+          {filters.search ? (
+            <>
+              <p className="text-lg font-medium">Ничего не найдено</p>
+              <p className="text-sm">По запросу «{filters.search}» задач нет</p>
+            </>
+          ) : (
+            <>
+              <p className="text-lg font-medium">Нет задач</p>
+              <p className="text-sm">Создайте первую задачу</p>
+            </>
+          )}
         </motion.div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

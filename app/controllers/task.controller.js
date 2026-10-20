@@ -25,7 +25,8 @@ class TaskController {
             priority,
             sort,
             page = 1,
-            limit = 5
+            limit = 5,
+            search
         } = req.validatedQuery;
 
 
@@ -37,6 +38,10 @@ class TaskController {
         if(priority){
             filter.priority = priority
         }
+        if(search){
+            filter.search = search
+        }
+
 
 
         const tasks = await taskService.getTasks(req.user, filter, sort, limit, page);

@@ -8,7 +8,8 @@ const querySchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).optional(),
     status: z.enum(['draft', 'backlog', 'todo', 'in_progress', 'review', 'rework', 'done', 'cancelled']).optional(),
     priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
-    sort: z.enum(['createdAt', '-createdAt', 'priority', '-priority']).optional()
+    sort: z.enum(['createdAt', '-createdAt', 'priority', '-priority']).optional(),
+    search: z.string().trim().min(3).optional()
 
 })
 

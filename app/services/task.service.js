@@ -31,13 +31,39 @@ class TaskService{
 
     async getTasks(user, filter, sort, limit, page){
 
+        let searchFilter;
+
+        if (filter.search){
+            searchFilter = filter.search
+        }
+        const { search, ...restFilter } = filter;
+
         if (user.role !== 'admin'){
-            filter.$or = [
+            restFilter.$or = [
                 {createdBy: user.userId},
                 {assignedTo: user.userId}
             ]
         }
-        const result = await taskRepository.getTasks(filter, sort, limit, page);
+        let searchConditions = {};
+
+        if (searchFilter) {
+            searchConditions.$or = [
+                {title: {$regex: searchFilter, $options: 'i'}},
+                {description: {$regex: searchFilter, $options: 'i'}}
+            ]
+        }
+        let finalFilter = restFilter
+
+        if (searchFilter) {
+            finalFilter = {
+                $and: [
+                    restFilter,
+                    searchConditions
+                ]
+            };
+        }
+
+        const result = await taskRepository.getTasks(finalFilter, sort, limit, page);
 
         result.tasks = result.tasks.map(taks => taskResponse(taks))
 

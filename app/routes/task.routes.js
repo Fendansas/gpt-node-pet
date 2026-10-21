@@ -11,6 +11,8 @@ import roleMiddleware from "../middleware/role.middleware.js";
 import requireFile from "../middleware/requireFile.middleware.js";
 import upload from "../middleware/upload.middleware.js";
 import fileType from "../middleware/validateFileContent.js";
+import CommentController from "../controllers/comment.controller.js";
+import {createCommentSchema} from "../validations/comment.validation.js";
 
 
 const router = express.Router();
@@ -74,6 +76,20 @@ router.get(
     asyncHandler(taskController.getFile)
 
 )
+
+router.post(
+    '/:taskId/comments',
+    asyncHandler(authMiddleware),
+    validateObjectId('taskId', 'task'),
+    validate(createCommentSchema),
+    asyncHandler(CommentController.createComment)
+);
+
+router.get('/:taskId/comments',
+    asyncHandler(authMiddleware),
+    validateObjectId('taskId', 'task'),
+    asyncHandler(CommentController.getCommentsByTaskId)
+);
 
 
 

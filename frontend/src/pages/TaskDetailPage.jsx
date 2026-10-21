@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, User, Pencil, Trash2, AlertTriangle, ArrowDown, ArrowUp, Minus, Ban, Paperclip, Upload, FileImage, File, Download, History, List } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Pencil, Trash2, AlertTriangle, ArrowDown, ArrowUp, Minus, Ban, Paperclip, Upload, FileImage, File, Download, History, List, MessageSquare } from 'lucide-react';
 import api, { uploadFile, downloadFile } from '../api/api';
 import { useAuth } from '../hooks/useAuth';
 import { getStatusConfig, getPriorityConfig } from '../utils/constants';
 import { EditTaskForm } from '../components/EditTaskForm';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { TaskHistory } from '../components/TaskHistory';
+import { TaskComments } from '../components/TaskComments';
 import toast from 'react-hot-toast';
 
 const priorityIcons = {
@@ -281,6 +282,17 @@ export function TaskDetailPage() {
               <History size={16} />
               История
             </button>
+            <button
+              onClick={() => setActiveTab('comments')}
+              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                activeTab === 'comments'
+                  ? 'border-indigo-500 text-indigo-400'
+                  : 'border-transparent text-slate-500 hover:text-slate-300'
+              }`}
+            >
+              <MessageSquare size={16} />
+              Комментарии
+            </button>
           </div>
         </div>
 
@@ -445,6 +457,10 @@ export function TaskDetailPage() {
           <div className="p-8">
             <TaskHistory history={task.history} users={users} />
           </div>
+        )}
+
+        {activeTab === 'comments' && (
+          <TaskComments taskId={id} users={users} user={user} />
         )}
       </motion.div>
 

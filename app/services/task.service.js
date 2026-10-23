@@ -8,6 +8,7 @@ import {ConflictError} from "../errors/ConflictError.js";
 import {taskResponse} from "../utils/taskResponse.js";
 import {deleteFile} from "../utils/deleteFile.js";
 import {buildTaskChanges} from "../utils/buildTaskChanges.js";
+import emitter from "../events/eventEmitter.js";
 
 class TaskService{
 
@@ -198,7 +199,12 @@ class TaskService{
         if (!updatedTask) {
             throw new ConflictError('Task was modified by another request');
         }
-
+        if (updateData.assignedTo !== undefined && updateData.assignedTo !== null && updateData.assignedTo.toString() !== task.assignedTo?.toString()) {
+            emitter.emit('task.assigned', {
+                taskId: updatedTask._id,
+                assignedTo: updatedTask.assignedTo
+            });
+        }
         return taskResponse(updatedTask);
     }
 

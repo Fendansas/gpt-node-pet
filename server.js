@@ -2,6 +2,7 @@
 import connectDB from "./app/config/database.js";
 import dotenv from 'dotenv';
 import app from './app.js'
+import './app/events/taskAssigned.listener.js';
 const port = 3333;
 
 dotenv.config()

@@ -100,6 +100,44 @@ class TaskRepository{
 
     }
 
+    async getDoneTaskStats(){
+        const tasks = await Task.aggregate([
+            {$match: {status: 'done'}},
+            {$group:{
+                _id: '$status',
+                count: {$sum: 1}
+
+                }}
+        ])
+        return tasks
+    }
+
+    async getTaskStats(filter){
+        const pipeline = [];
+        if (filter) {
+            pipeline.push({ $match: filter });
+        }
+
+        pipeline.push({
+            $group: {
+                _id: '$status',
+                count: { $sum: 1 },
+            },
+        });
+
+        pipeline.push({
+            $project: {
+                status: '$_id',
+                count: 1,
+                _id: 0
+            }
+        });
+
+        const tasks = await Task.aggregate(pipeline);
+        return tasks;
+    }
+
+
 
 }
 

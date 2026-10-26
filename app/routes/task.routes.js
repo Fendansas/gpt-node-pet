@@ -13,6 +13,7 @@ import upload from "../middleware/upload.middleware.js";
 import fileType from "../middleware/validateFileContent.js";
 import CommentController from "../controllers/comment.controller.js";
 import {createCommentSchema} from "../validations/comment.validation.js";
+import TaskController from "../controllers/task.controller.js";
 
 
 const router = express.Router();
@@ -29,6 +30,11 @@ router.get('/',
     asyncHandler(authMiddleware),
     validateQuery,
     asyncHandler(taskController.getTasks)
+);
+
+router.get('/status',
+    asyncHandler(authMiddleware),
+    asyncHandler(taskController.getTaskStats)
 );
 
 router.get('/:id',
@@ -90,6 +96,8 @@ router.get('/:taskId/comments',
     validateObjectId('taskId', 'task'),
     asyncHandler(CommentController.getCommentsByTaskId)
 );
+
+
 
 
 

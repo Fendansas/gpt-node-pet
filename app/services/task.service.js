@@ -9,6 +9,8 @@ import {taskResponse} from "../utils/taskResponse.js";
 import {deleteFile} from "../utils/deleteFile.js";
 import {buildTaskChanges} from "../utils/buildTaskChanges.js";
 import emitter from "../events/eventEmitter.js";
+import mongoose from 'mongoose';
+
 
 class TaskService{
 
@@ -342,6 +344,28 @@ class TaskService{
         return attachment
 
 
+    }
+
+
+    async getTaskStats(user){
+
+
+        const userId = new mongoose.Types.ObjectId(user.userId)
+
+        let filter = null;
+
+        if (user.role !== 'admin'){
+            filter ={
+                $or: [
+                    { createdBy: userId },
+                    { assignedTo: userId }
+                ]
+            }
+        }
+
+
+        const tasks = await taskRepository.getTaskStats(filter)
+        return tasks
     }
 }
 

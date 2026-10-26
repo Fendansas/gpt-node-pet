@@ -123,6 +123,11 @@ class TaskController {
 
 
     }
+
+    async getTaskStats (req, res, next){
+        const tasks = await taskService.getTaskStats(req.user);
+        return res.status(200).json(tasks)
+    }
 }
 
 export default new TaskController();

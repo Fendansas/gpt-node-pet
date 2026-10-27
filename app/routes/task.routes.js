@@ -36,6 +36,10 @@ router.get('/status',
     asyncHandler(authMiddleware),
     asyncHandler(taskController.getTaskStats)
 );
+router.get('/stats-by-assignee',
+    asyncHandler(authMiddleware),
+    asyncHandler(taskController.getTaskStatsByAssignee)
+);
 
 router.get('/:id',
     asyncHandler(authMiddleware),

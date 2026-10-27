@@ -137,6 +137,38 @@ class TaskRepository{
         return tasks;
     }
 
+    async getTaskStatsByAssignee(filter){
+        const pipeline = [];
+        if (filter) {
+            pipeline.push({ $match: filter });
+        }
+        pipeline.push({
+            $match: { assignedTo: { $ne: null }}
+        });
+
+        pipeline.push({
+            $group: {
+                _id: {
+                    assignedTo: '$assignedTo',
+                    status: '$status'
+                },
+                count: { $sum: 1 }
+            }
+        });
+
+        pipeline.push({
+            $project: {
+                assignedTo: '$_id.assignedTo',
+                status: '$_id.status',
+                count: 1,
+                _id: 0
+            }
+        });
+
+        const tasks = await Task.aggregate(pipeline);
+        return tasks;
+    }
+
 
 
 }

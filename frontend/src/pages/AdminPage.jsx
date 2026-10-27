@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import api from '../api/api';
 import { useAuth } from '../hooks/useAuth';
 import { UserTable } from '../components/UserTable';
+import { AssigneeStats } from '../components/AssigneeStats';
 import toast from 'react-hot-toast';
 
 export function AdminPage() {
   const { user } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [assigneeStats, setAssigneeStats] = useState([]);
+  const [statsLoading, setStatsLoading] = useState(true);
 
   const fetchUsers = async () => {
     if (!user) return;
@@ -26,9 +29,27 @@ export function AdminPage() {
     }
   };
 
+  const fetchAssigneeStats = useCallback(async () => {
+    if (!user) return;
+    try {
+      const { data } = await api.get('/tasks/stats-by-assignee');
+      setAssigneeStats(data);
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        toast.error('Ошибка загрузки статистики по исполнителям');
+      }
+    } finally {
+      setStatsLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchUsers();
   }, [user]);
+
+  useEffect(() => {
+    fetchAssigneeStats();
+  }, [fetchAssigneeStats]);
 
   const handleToggleActive = async (userId, currentStatus) => {
     try {
@@ -57,6 +78,15 @@ export function AdminPage() {
             <p className="text-slate-500 mt-0.5">Управление пользователями</p>
           </div>
         </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-8"
+      >
+        <AssigneeStats stats={assigneeStats} users={users} loading={statsLoading} />
       </motion.div>
 
       {loading ? (

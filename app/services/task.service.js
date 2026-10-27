@@ -367,6 +367,23 @@ class TaskService{
         const tasks = await taskRepository.getTaskStats(filter)
         return tasks
     }
+
+    async getTaskStatsByAssignee(user) {
+        const userId = new mongoose.Types.ObjectId(user.userId)
+
+        let filter = null;
+
+        if (user.role !== 'admin'){
+            filter ={
+                $or: [
+                    { createdBy: userId },
+                    { assignedTo: userId }
+                ]
+            }
+        }
+        const tasks = await taskRepository.getTaskStatsByAssignee(filter);
+        return tasks;
+    }
 }
 
 export default new TaskService();

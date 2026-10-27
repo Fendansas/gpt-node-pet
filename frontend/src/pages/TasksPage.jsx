@@ -5,6 +5,7 @@ import api from '../api/api';
 import { useAuth } from '../hooks/useAuth';
 import { TaskCard } from '../components/TaskCard';
 import { TaskFilters } from '../components/TaskFilters';
+import { TaskStats } from '../components/TaskStats';
 import { TaskForm } from '../components/TaskForm';
 import { EditTaskForm } from '../components/EditTaskForm';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -14,6 +15,8 @@ import toast from 'react-hot-toast';
 export function TasksPage() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
+  const [stats, setStats] = useState([]);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [filters, setFilters] = useState({ status: '', priority: '', sort: '', search: '' });
   const [page, setPage] = useState(1);
@@ -46,9 +49,28 @@ export function TasksPage() {
     }
   }, [page, filters, user]);
 
+  const fetchStats = useCallback(async () => {
+    if (!user) return;
+    setStatsLoading(true);
+    try {
+      const { data } = await api.get('/tasks/status');
+      setStats(data);
+    } catch (err) {
+      if (err.response?.status !== 401) {
+        toast.error('Ошибка загрузки статистики');
+      }
+    } finally {
+      setStatsLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   useEffect(() => {
     if (user) {
@@ -65,6 +87,7 @@ export function TasksPage() {
     const { data } = await api.post('/tasks', taskData);
     toast.success('Задача создана!');
     fetchTasks();
+    fetchStats();
     return data;
   };
 
@@ -72,6 +95,7 @@ export function TasksPage() {
     const { data } = await api.patch(`/tasks/${taskId}`, updateData);
     toast.success('Задача обновлена!');
     fetchTasks();
+    fetchStats();
     return data;
   };
 
@@ -85,6 +109,7 @@ export function TasksPage() {
       await api.post(`/tasks/${taskId}/cancel`);
       toast.success('Задача отменена');
       fetchTasks();
+      fetchStats();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Ошибка отмены');
     }
@@ -98,6 +123,7 @@ export function TasksPage() {
       toast.success('Задача удалена');
       setConfirmTask(null);
       fetchTasks();
+      fetchStats();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Ошибка удаления');
     } finally {
@@ -126,6 +152,10 @@ export function TasksPage() {
           Новая задача
         </button>
       </motion.div>
+
+      <div className="mb-6">
+        <TaskStats stats={stats} loading={statsLoading} />
+      </div>
 
       <motion.div
         initial={{ opacity: 0 }}

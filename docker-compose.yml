@@ -8,6 +8,10 @@ services:
       MONGO_INITDB_DATABASE: gpt-app
     volumes:
       - mongo-data:/data/db
-
+  redis:
+    image: redis:7-alpine
+    container_name: redis-gpt
+    ports:
+      - "6379:6379"
 volumes:
   mongo-data:

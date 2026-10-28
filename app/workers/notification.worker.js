@@ -1,7 +1,8 @@
 import {Worker} from "bullmq";
 
 
-new Worker(
+
+const worker = new Worker(
     'notifications',
     async (job) => {
         console.log(job.name, job.data)
@@ -13,3 +14,14 @@ new Worker(
         }
     }
 );
+
+worker.on('completed', (job) => {
+    console.log('completed',job.id )
+
+});
+
+worker.on('failed', (job, error) =>{
+    console.log('failed', job?.data, error.message);
+})
+
+export default worker

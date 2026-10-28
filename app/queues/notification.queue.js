@@ -8,11 +8,22 @@ const queue = new Queue('notifications', {
     }
 });
 
-export function addTaskAssignedJob(taskId, assignedTo){
-   return  queue.add('taskAssigned', {
-        taskId:taskId,
-        assignedTo:assignedTo
-    })
+export function addTaskAssignedJob(taskId, assignedTo) {
+    return queue.add('taskAssigned', {
+            taskId: taskId,
+            assignedTo: assignedTo
+        },
+        {
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 1000,
+
+            },
+            removeOnComplete: 100,
+            removeOnFail: 500
+        },
+    )
 }
 
 export default queue

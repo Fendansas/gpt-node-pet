@@ -8,10 +8,11 @@ const queue = new Queue('notifications', {
     }
 });
 
-export function addTaskAssignedJob(taskId, assignedTo) {
+export function addTaskAssignedJob(taskId, assignedTo,assignmentId) {
     return queue.add('taskAssigned', {
             taskId: taskId,
-            assignedTo: assignedTo
+            assignedTo: assignedTo,
+            assignmentId: assignmentId,
         },
         {
             attempts: 3,
@@ -21,7 +22,8 @@ export function addTaskAssignedJob(taskId, assignedTo) {
 
             },
             removeOnComplete: 100,
-            removeOnFail: 500
+            removeOnFail: 500,
+            jobId: 'task-assigned-' + taskId + '-' + assignedTo + '-' + assignmentId,
         },
     )
 }

@@ -175,7 +175,8 @@ class TaskService{
             history = {
                 action: 'task_updated',
                 changedBy: user.userId,
-                changes
+                changes,
+                _id:  new mongoose.Types.ObjectId()
             }
         }
         const update = {
@@ -204,7 +205,8 @@ class TaskService{
         if (updateData.assignedTo !== undefined && updateData.assignedTo !== null && updateData.assignedTo.toString() !== task.assignedTo?.toString()) {
             emitter.emit('task.assigned', {
                 taskId: updatedTask._id,
-                assignedTo: updatedTask.assignedTo
+                assignedTo: updatedTask.assignedTo,
+                assignmentId:history._id
             });
         }
         return taskResponse(updatedTask);

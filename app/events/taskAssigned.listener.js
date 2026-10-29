@@ -22,7 +22,7 @@ emitter.on('task.assigned', (data) => {
 emitter.on('task.assigned', async (data) => {
 
     try {
-        await addTaskAssignedJob(data.taskId, data.assignedTo)
+        await addTaskAssignedJob(data.taskId, data.assignedTo, data.assignmentId)
     } catch (error){
         console.error(error)
     }

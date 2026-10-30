@@ -10,7 +10,7 @@ import {deleteFile} from "../utils/deleteFile.js";
 import {buildTaskChanges} from "../utils/buildTaskChanges.js";
 import emitter from "../events/eventEmitter.js";
 import mongoose from 'mongoose';
-
+import outboxRepository from "../repositories/outbox.repository.js";
 
 class TaskService{
 
@@ -179,37 +179,77 @@ class TaskService{
                 _id:  new mongoose.Types.ObjectId()
             }
         }
-        const update = {
-            updateData,
-            history
-        }
 
+        const session = await mongoose.startSession();
         let updatedTask;
+        const isAssigneeChanged =
+            updateData.assignedTo !== undefined &&
+            updateData.assignedTo !== null &&
+            updateData.assignedTo.toString() !== task.assignedTo?.toString();
+        try {
+            session.startTransaction();
+            const update = {
+                updateData,
+                history
+            }
+            if (data.status !== undefined && user.role !== 'admin') {
+                updatedTask = await taskRepository.updateTask(
+                    id,
+                    update,
+                    task.status,
+                    session
+                );
+            } else {
+                updatedTask = await taskRepository.updateTask(
+                    id,
+                    update,
+                    null,
+                    session
+                );
+            }
 
-        if (data.status !== undefined && user.role !== 'admin') {
-            updatedTask = await taskRepository.updateTask(
-                id,
-                update,
-                task.status
-            );
-        } else {
-            updatedTask = await taskRepository.updateTask(
-                id,
-                update
-            );
-        }
-        
-        if (!updatedTask) {
-            throw new ConflictError('Task was modified by another request');
-        }
-        if (updateData.assignedTo !== undefined && updateData.assignedTo !== null && updateData.assignedTo.toString() !== task.assignedTo?.toString()) {
-            emitter.emit('task.assigned', {
-                taskId: updatedTask._id,
-                assignedTo: updatedTask.assignedTo,
-                assignmentId:history._id
-            });
+            if (!updatedTask) {
+                throw new ConflictError('Task was modified by another request');
+            }
+
+
+            if (isAssigneeChanged && history) {
+                await outboxRepository.create({
+                        eventType: 'task.assigned',
+                        payload: {
+                            taskId: updatedTask._id,
+                            assignedTo: updatedTask.assignedTo,
+                            assignmentId: history._id,
+                        },
+                        status: 'pending'
+                    }, session
+                );
+            }
+
+
+
+
+            // if (updateData.assignedTo !== undefined && updateData.assignedTo !== null && updateData.assignedTo.toString() !== task.assignedTo?.toString()) {
+            //     emitter.emit('task.assigned', {
+            //         taskId: updatedTask._id,
+            //         assignedTo: updatedTask.assignedTo,
+            //         assignmentId:history._id
+            //     });
+            // }
+            await session.commitTransaction();
+
+
+
+        } catch (error){
+            await session.abortTransaction();
+            throw error;
+
+        } finally {
+            await session.endSession();
+
         }
         return taskResponse(updatedTask);
+
     }
 
     async getTaskById(id, user){

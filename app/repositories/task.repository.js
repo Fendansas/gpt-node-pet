@@ -45,7 +45,7 @@ class TaskRepository{
         }
     }
 
-    async updateTask(id, data, expectedStatus = null) {
+    async updateTask(id, data, expectedStatus = null, session = null) {
 
         const filter = {_id: id};
         const { updateData, history } = data;
@@ -66,7 +66,8 @@ class TaskRepository{
             update,
             {
                 new: true,
-                runValidators: true
+                runValidators: true,
+                ...(session && {session})
             }
         );
 

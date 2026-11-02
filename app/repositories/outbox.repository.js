@@ -20,6 +20,27 @@ class OutboxRepository {
         )
         return outbox
     }
+
+    async getPending(limit = 10) {
+        const pending = await Outbox.find({
+            status: 'pending'
+        })
+            .sort({createdAt: 1})
+            .limit(limit)
+        return pending
+    }
+
+    async markProcessed(id) {
+        const outbox = await Outbox.findByIdAndUpdate(id, {
+            status:'processed',
+            processedAt: new Date()
+        },
+            { new: true }
+        )
+
+        return outbox
+    }
+
 }
 
 

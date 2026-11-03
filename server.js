@@ -1,5 +1,5 @@
 import connectDB, {disconnectDB} from "./app/config/database.js";
-import dotenv from 'dotenv';
+import 'dotenv/config'
 import app from './app.js'
 import worker from "./app/workers/notification.worker.js";
 import queue from "./app/queues/notification.queue.js";
@@ -7,7 +7,7 @@ import {processPending, waitForProcessing} from "./app/services/outboxProcessor.
 
 const port = 3333;
 
-dotenv.config()
+
 
 
 await connectDB();

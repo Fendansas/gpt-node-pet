@@ -11,13 +11,17 @@ async function sendEmail(job) {
     if (!user.email) {
         throw new UnrecoverableError('User email not found');
     }
+    const assignedBy = await userService.getUserById(job.data.assignedBy);
+    if (!assignedBy.name) {
+        throw new UnrecoverableError('User name not found');
+    }
     const task = await taskRepository.getTaskById(job.data.taskId);
     if (!task) {
         throw new UnrecoverableError('Task not found');
     }
     const emailData = {
         to: user.email,
-        subject: 'You have been assigned a task',
+        subject: `You have been assigned a task from ${assignedBy.name}`,
         text: `Task ${task.title} , priority ${task.priority}`
     }
     await sendEmailMailer(emailData)

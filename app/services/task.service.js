@@ -220,6 +220,7 @@ class TaskService{
                             taskId: updatedTask._id,
                             assignedTo: updatedTask.assignedTo,
                             assignmentId: history._id,
+                            assignedBy: history.changedBy
                         },
                         status: 'pending'
                     }, session

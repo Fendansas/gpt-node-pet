@@ -17,7 +17,8 @@ export function processPending(){
                         await addTaskAssignedJob(
                             element.payload.taskId,
                             element.payload.assignedTo,
-                            element.payload.assignmentId
+                            element.payload.assignmentId,
+                            element.payload.assignedBy
                         );
                         const processed = await outboxRepository.markProcessed(element._id)
                         if (!processed) {

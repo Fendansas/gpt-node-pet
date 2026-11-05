@@ -2,6 +2,8 @@ import commentRepository from "../repositories/comment.repository.js";
 import taskRepository from "../repositories/task.repository.js";
 import {NotFoundError} from "../errors/NotFoundError.js";
 import {ForbiddenError} from "../errors/ForbiddenError.js";
+import mongoose from "mongoose";
+import outboxRepository from "../repositories/outbox.repository.js";
 
 
 class CommentService{
@@ -14,14 +16,49 @@ class CommentService{
         }
         this.checkTaskAccess(task, user)
 
+        const session = await mongoose.startSession();
+        try {
+            session.startTransaction();
+            const comment = await commentRepository.createComment({
+                taskId: data.taskId,
+                text: data.text,
+                author: user.userId
 
-        const comment = await commentRepository.createComment({
-            taskId: data.taskId,
-            text: data.text,
-            author: user.userId
+            }, session)
 
-        })
-        return comment
+
+            const recipients = [
+                ...new Set(
+                    [task.createdBy, task.assignedTo]
+                        .filter(id => id && id.toString() !== user.userId.toString())
+                        .map(id => id.toString())
+                )
+            ];
+
+            for (const recipientId of recipients) {
+                console.log(recipientId);
+                await outboxRepository.create({
+                        eventType: 'task.comment.created',
+                        payload: {
+                            taskId: data.taskId,
+                            commentId: comment._id,
+                            recipientId: recipientId,
+                            authorId: user.userId
+                        },
+                        status: 'pending'
+                    }, session
+                );
+            }
+
+            await session.commitTransaction();
+            return comment
+        } catch (error){
+            await session.abortTransaction();
+            throw error;
+        } finally {
+            await session.endSession();
+        }
+
     }
 
     async getCommentsByTaskId(taskId,user){

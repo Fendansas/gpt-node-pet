@@ -1,5 +1,5 @@
 import outboxRepository from "../repositories/outbox.repository.js";
-import {addTaskAssignedJob} from "../queues/notification.queue.js";
+import {addTaskAssignedJob, addTaskCommentJob} from "../queues/notification.queue.js";
 
 
 
@@ -29,6 +29,21 @@ export function processPending(){
                     }
 
 
+                }  else if (element.eventType === 'task.comment.created'){
+                    try {
+                        await addTaskCommentJob(
+                            element.payload.taskId,
+                            element.payload.commentId,
+                            element.payload.recipientId,
+                            element.payload.authorId
+                        );
+                        const processed = await outboxRepository.markProcessed(element._id)
+                        if (!processed) {
+                            throw new Error('Outbox event not found');
+                        }
+                    } catch (error) {
+                        console.error(`Failed to process Outbox event ${element._id}:`, error);
+                    }
                 }
             }
         } finally {

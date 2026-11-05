@@ -227,16 +227,6 @@ class TaskService{
                 );
             }
 
-
-
-
-            // if (updateData.assignedTo !== undefined && updateData.assignedTo !== null && updateData.assignedTo.toString() !== task.assignedTo?.toString()) {
-            //     emitter.emit('task.assigned', {
-            //         taskId: updatedTask._id,
-            //         assignedTo: updatedTask.assignedTo,
-            //         assignmentId:history._id
-            //     });
-            // }
             await session.commitTransaction();
 
 

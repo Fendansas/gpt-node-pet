@@ -29,4 +29,25 @@ export function addTaskAssignedJob(taskId, assignedTo,assignmentId, assignedBy) 
     )
 }
 
+export function addTaskCommentJob(taskId, commentId, recipientId, authorId){
+    return queue.add('commentCreated', {
+            taskId: taskId,
+            commentId: commentId,
+            recipientId: recipientId,
+            authorId: authorId
+        },
+        {
+            attempts: 3,
+            backoff: {
+                type: 'exponential',
+                delay: 1000,
+
+            },
+            removeOnComplete: 100,
+            removeOnFail: 500,
+            jobId: 'comment-created-' + taskId + '-' + commentId + '-' + recipientId,
+        },
+    )
+}
+
 export default queue

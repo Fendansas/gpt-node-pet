@@ -117,6 +117,9 @@ class TaskService{
             if (data.priority !== undefined) {
                 updateData.priority = data.priority
             }
+            if (data.dueDate !== undefined) {
+                updateData.dueDate = data.dueDate
+            }
 
             if (data.assignedTo !== undefined) {
                 updateData.assignedTo = data.assignedTo
@@ -136,6 +139,10 @@ class TaskService{
 
             if (data.priority !== undefined) {
                 updateData.priority = data.priority
+            }
+
+            if (data.dueDate !== undefined) {
+                updateData.dueDate = data.dueDate
             }
 
             if (data.assignedTo !== undefined) {

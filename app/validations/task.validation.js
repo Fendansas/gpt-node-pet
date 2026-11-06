@@ -7,6 +7,7 @@ export const createTaskSchema = z.object({
     title: z.string().min(3).trim(),
     description: z.string().trim().optional(),
     priority: z.enum(['low', 'medium', 'high', 'critical']),
+    dueDate: z.iso.datetime().optional(),
     assignedTo: z.string()
         .refine(
             value => mongoose.Types.ObjectId.isValid(value),
@@ -22,6 +23,7 @@ export const updateTaskSchema = z.object({
     description: z.string().trim().optional(),
     priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
     status: z.enum(['draft', 'backlog', 'todo', 'in_progress', 'review', 'rework', 'done']).optional(),
+    dueDate: z.iso.datetime().nullable().optional(),
     assignedTo: z.string()
         .refine(
             value => mongoose.Types.ObjectId.isValid(value),

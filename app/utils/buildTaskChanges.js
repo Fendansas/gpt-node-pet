@@ -18,6 +18,15 @@ export const buildTaskChanges = (task, updateData) => {
                 }
 
 
+            } else if (key === 'dueDate') {
+                if (!task.dueDate && !updateData.dueDate) {
+                    isChanged = false;
+                }else if (!task.dueDate || !updateData.dueDate) {
+                    isChanged = true;
+                } else{
+                    isChanged = task.dueDate.getTime() !== updateData.dueDate.getTime();
+                }
+
             } else {
                 isChanged = task[key] !== updateData[key];
             }

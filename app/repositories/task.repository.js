@@ -9,7 +9,8 @@ class TaskRepository{
                 description: data.description,
                 priority: data.priority,
                 createdBy: data.createdBy,
-                assignedTo: data.assignedTo
+                assignedTo: data.assignedTo,
+                dueDate: data.dueDate
             })
             return task;
 

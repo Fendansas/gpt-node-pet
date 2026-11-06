@@ -23,6 +23,9 @@ const taskSchema = new Schema({
         enum: ['low', 'medium', 'high', 'critical'],
         default: 'medium'
     },
+    dueDate:{
+        type: Date
+    },
     createdBy:{
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -62,6 +65,10 @@ const taskSchema = new Schema({
             priority:{
                 from: String,
                 to: String
+            },
+            dueDate:{
+                from: Date,
+                to: Date
             },
             assignedTo:{
                 from: {
